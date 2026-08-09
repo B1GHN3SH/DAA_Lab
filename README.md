@@ -70,43 +70,71 @@ DAA_Lab/
 │
 ├── README.md
 │
-└── DAA_Lab_01/
-    ├── Q1_Putting_them_in_order/
-    │   ├── Q1_order_of_growth.c
-    │   ├── growth_order_data.csv
-    │   ├── Q1_growth_order_plot.png
-    │   └── Q1_growth_order_linechart.png
+├── DAA_Lab_01/
+│   ├── Q1_Putting_them_in_order/
+│   │   ├── Q1_order_of_growth.c
+│   │   ├── growth_order_data.csv
+│   │   ├── Q1_growth_order_plot.png
+│   │   └── Q1_growth_order_linechart.png
+│   │
+│   ├── Q2_Fair_vs_Biased_Coin/
+│   │   └── Q2_coin_toss.c
+│   │
+│   ├── Q3_Performance_Analysis_of_bubble_sort/
+│   │   ├── Q3_bubble_sort.c
+│   │   ├── bubble_sort_data.csv
+│   │   ├── bubble_sort_sorted_data.csv
+│   │   ├── Q3_bubble_sort_random_plot.png
+│   │   └── Q3_bubble_sort_sorted_plot.png
+│   │
+│   ├── Q4_Tower_of_Hanoi/
+│   │   ├── Q4_tower_of_hanoi.c
+│   │   ├── hanoi_data.csv
+│   │   ├── Q4_hanoi_plot.png
+│   │   └── Q4_hanoi_plot_logscale.png
+│   │
+│   ├── Q5_Find_the_partition_point/
+│   │   └── Q5_partition_point.c
+│   │
+│   └── Q6_Element_uniqueness/
+│       └── Q6_element_uniqueness.c
+│
+└── DAA_Lab_02/
     │
-    ├── Q2_Fair_vs_Biased_Coin/
-    │   └── Q2_coin_toss.c
+    ├── Q1_Dictionary_Operations/
+    │   ├── q1_dictionary.c
+    │   ├── q1_dictionary_benchmark.csv
+    │   ├── Q1_dictionary_operations.png
+    │   ├── Q1_search.png
+    │   ├── Q1_insert.png
+    │   ├── Q1_delete.png
+    │   ├── Q1_max.png
+    │   ├── Q1_min.png
+    │   ├── Q1_predecessor.png
+    │   └── Q1_successor.png
     │
-    ├── Q3_Performance_Analysis_of_bubble_sort/
-    │   ├── Q3_bubble_sort.c
-    │   ├── bubble_sort_data.csv
-    │   ├── bubble_sort_sorted_data.csv
-    │   ├── Q3_bubble_sort_random_plot.png
-    │   └── Q3_bubble_sort_sorted_plot.png
+    ├── Q2_Merge_sort_vs_Modified_merge_sort/
+    │   ├── q2_mergesort_compare.c
+    │   ├── q2_mergesort_benchmark.csv
+    │   ├── Q2_mergesort_comparison.png
+    │   └── Q2_mergesort_comparison_loglog.png
     │
-    ├── Q4_Tower_of_Hanoi/
-    │   ├── Q4_tower_of_hanoi.c
-    │   ├── hanoi_data.csv
-    │   ├── Q4_hanoi_plot.png
-    │   └── Q4_hanoi_plot_logscale.png
-    │
-    ├── Q5_Find_the_partition_point/
-    │   └── Q5_partition_point.c
-    │
-    └── Q6_Element_uniqueness/
-        └── Q6_element_uniqueness.c
+    └── Q3_Merging_k_sorted_arrays/
+        ├── Q3_kway_merge.c
+        ├── kway_merge_data.csv
+        ├── Q3_experimentA_vary_k.png
+        ├── Q3_experimentA_vary_k_logscale.png
+        └── Q3_experimentB_vary_n.png
 ```
 
 ---
 
 ## Lab Index
 
-| Lab    | Topic                                                | Date        | Questions | Folder                   |
-| ------ | ---------------------------------------------------- | ----------- | --------- | ------------------------ |
-| Lab 01 | Growth of functions, empirical analysis, recurrences | 29 Jul 2026 | 6         | [DAA_Lab_01](DAA_Lab_01) |
+| Lab    | Topic                                                    | Date        | Questions | Folder                   |
+| ------ | -------------------------------------------------------- | ----------- | --------- | ------------------------ |
+| Lab 01 | Growth of functions, empirical analysis, recurrences     | 29 Jul 2026 | 6         | [DAA_Lab_01](DAA_Lab_01) |
+| Lab 02 | Dictionary ADT costs, merge sort variants, k-way merging | 05 Aug 2026 | 3         | [DAA_Lab_02](DAA_Lab_02) |
 
 ---
 
@@ -153,6 +181,37 @@ Increasing order of growth (n = 10^6):
 
 ---
 
+## DAA_Lab_02
+
+> Dictionary ADT costs across six representations, a Master-theorem
+> comparison between 2-way and 3-way merge sort, and two strategies for
+> merging k sorted arrays.
+
+| #   | Question                          | Description                                                                                                                                  | File                                                                                                      |
+| --- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | Dictionary Operations             | Derive and empirically confirm the worst-case cost of Search, Insert, Delete, Max, Min, Predecessor, and Successor across 6 implementations. | [Q1/Q1_dictionary_operations.c](DAA_Lab_02/Q1_Dictionary_Operations/Q1_dictionary_operations.c)           |
+| 2   | Merge Sort vs Modified Merge Sort | Compare standard 2-way merge sort against a 3-way variant (split into thirds, 3-way merge), by recurrence and by measured runtime.           | [Q2/Q2_mergesort_comparison.c](DAA_Lab_02/Q2_Merge_sort_vs_Modified_merge_sort/Q2_mergesort_comparison.c) |
+| 3   | Merging k Sorted Arrays           | Compare sequential merging (merge in one at a time) against pairwise/tournament merging, for k arrays of n elements each.                    | [Q3/Q3_kway_merge.c](DAA_Lab_02/Q3_Merging_k_sorted_arrays/Q3_kway_merge.c)                               |
+
+---
+
+## Highlight — Q3 makes the O(nk²) vs O(nk log k) gap visible
+
+`Q3_kway_merge.c` runs two experiments: fixing `n` and growing `k`, and
+fixing `k` and growing `n`. The first is the interesting one — it is where
+sequential merging's quadratic dependence on `k` actually shows up as a
+number instead of staying a symbol in a proof.
+
+At `n = 1000` fixed, going from `k = 2` to `k = 256` (a 128× increase in
+`k`) makes sequential merging **~4300× slower** (16 µs → 68,788 µs), while
+pairwise merging only grows **~840×** (13 µs → 10,887 µs) over the same
+range — visibly sub-quadratic, tracking `O(nk log k)` instead of
+`O(nk²)`. Both methods produce a correctly sorted array every time (checked
+in-program with `is_sorted()`), so the divergence is purely about how the
+work is scheduled, not correctness.
+
+---
+
 ## Results and Artifacts
 
 The three simulation/measurement programs export their data; the plots are
@@ -185,6 +244,32 @@ A few conclusions that fall out of the data:
   find a boundary at index 333,333; binary search found the same boundary in
   **20**.
 
+### DAA_Lab_02
+
+| Data                                                                                                              | Plot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Produced by | What it shows                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [Q1/dictionary_operations_data.csv](DAA_Lab_02/Q1_Dictionary_Operations/dictionary_operations_data.csv)           | [Q1/Q1_dictionary_operations_plot.png](DAA_Lab_02/Q1_Dictionary_Operations/Q1_dictionary_operations_plot.png) (grid), plus one plot per operation — [Search](DAA_Lab_02/Q1_Dictionary_Operations/Q1_search_plot.png), [Insert](DAA_Lab_02/Q1_Dictionary_Operations/Q1_insert_plot.png), [Delete](DAA_Lab_02/Q1_Dictionary_Operations/Q1_delete_plot.png), [Max](DAA_Lab_02/Q1_Dictionary_Operations/Q1_max_plot.png), [Min](DAA_Lab_02/Q1_Dictionary_Operations/Q1_min_plot.png), [Predecessor](DAA_Lab_02/Q1_Dictionary_Operations/Q1_predecessor_plot.png), [Successor](DAA_Lab_02/Q1_Dictionary_Operations/Q1_successor_plot.png) | Q1          | Average time per operation (ns, log scale) vs `n`, for all 6 structures, across all 7 operations.                                     |
+| [Q2/mergesort_comparison_data.csv](DAA_Lab_02/Q2_Merge_sort_vs_Modified_merge_sort/mergesort_comparison_data.csv) | [Q2/Q2_mergesort_comparison_plot.png](DAA_Lab_02/Q2_Merge_sort_vs_Modified_merge_sort/Q2_mergesort_comparison_plot.png), [Q2/Q2_mergesort_comparison_loglog_plot.png](DAA_Lab_02/Q2_Merge_sort_vs_Modified_merge_sort/Q2_mergesort_comparison_loglog_plot.png)                                                                                                                                                                                                                                                                                                                                                                       | Q2          | Runtime vs `n` for 2-way and 3-way merge sort, linear and log-log (the log-log plot's matching slopes confirm both are `Θ(n log n)`). |
+| [Q3/kway_merge_data.csv](DAA_Lab_02/Q3_Merging_k_sorted_arrays/kway_merge_data.csv)                               | [Q3/Q3_experimentA_vary_k_plot.png](DAA_Lab_02/Q3_Merging_k_sorted_arrays/Q3_experimentA_vary_k_plot.png), [Q3/Q3_experimentA_vary_k_logscale_plot.png](DAA_Lab_02/Q3_Merging_k_sorted_arrays/Q3_experimentA_vary_k_logscale_plot.png), [Q3/Q3_experimentB_vary_n_plot.png](DAA_Lab_02/Q3_Merging_k_sorted_arrays/Q3_experimentB_vary_n_plot.png)                                                                                                                                                                                                                                                                                    | Q3          | Sequential vs pairwise k-way merge time, varying `k` at fixed `n` and varying `n` at fixed `k`.                                       |
+
+A few conclusions that fall out of the Lab 2 data:
+
+- **Data-structure choice trades off which operation is cheap (Q1).** No
+  structure wins everywhere: sorted array gives `O(log n)` search but
+  `O(n)` insert/delete; doubly linked sorted list gives `O(1)`
+  delete/max/min/predecessor/successor but `O(n)` search; unsorted array
+  gives `O(1)` insert but `O(n)` everything that depends on order.
+- **Both merge sort variants are `Θ(n log n)`, and the benchmark shows it
+  (Q2).** At `n = 500,000`, 2-way merge sort averaged **52.2 ms** against
+  **57.1 ms** for the 3-way variant over 5 trials — a ~9% constant-factor
+  gap, not a different growth class; the log-log plot shows both curves
+  running parallel.
+- **Sequential k-way merging is quadratic in `k`, and it shows (Q3).** At
+  `n = 1000` fixed, growing `k` from 2 to 256 makes sequential merging
+  **~4300×** slower (16 µs → 68,788 µs) versus **~840×** for pairwise
+  merging (13 µs → 10,887 µs) over the same 128× growth in `k` —
+  `O(nk²)` against `O(nk log k)`, made visible rather than just asserted.
+
 ---
 
 ## Complexity Summary
@@ -201,6 +286,25 @@ A few conclusions that fall out of the data:
 | 6   | Element uniqueness — brute force                         | O(n²)                           | Θ(1) auxiliary       |
 | 6   | Element uniqueness — sort and scan                       | Θ(n log n)                      | Θ(n) auxiliary       |
 | 6   | Element uniqueness — hashing                             | Θ(n) average                    | Θ(n) auxiliary       |
+
+**DAA_Lab_02**
+
+| #   | Program                                        | Time                                                        | Space           |
+| --- | ---------------------------------------------- | ----------------------------------------------------------- | --------------- |
+| 1   | Dictionary — unsorted array                    | Search/Max/Min/Pred/Succ Θ(n), Insert Θ(1), Delete Θ(1)     | Θ(n)            |
+| 1   | Dictionary — sorted array                      | Search Θ(log n); Insert/Delete Θ(n); Max/Min/Pred/Succ Θ(1) | Θ(n)            |
+| 1   | Dictionary — singly linked, unsorted           | Search/Max/Min/Pred/Succ Θ(n), Insert Θ(1), Delete Θ(n)     | Θ(n)            |
+| 1   | Dictionary — singly linked, sorted             | Search/Insert/Delete/Max Θ(n); Min/Pred Θ(1)/Θ(n)\*         | Θ(n)            |
+| 1   | Dictionary — doubly linked, unsorted           | Search/Max/Min/Pred/Succ Θ(n), Insert Θ(1), Delete Θ(1)     | Θ(n)            |
+| 1   | Dictionary — doubly linked, sorted             | Search/Insert Θ(n); Delete/Max/Min/Pred/Succ Θ(1)           | Θ(n)            |
+| 2   | Merge sort (2-way)                             | Θ(n log₂ n)                                                 | Θ(n) auxiliary  |
+| 2   | Merge sort (3-way, modified)                   | Θ(n log₃ n) = Θ(n log n)                                    | Θ(n) auxiliary  |
+| 3   | k-way merge — sequential (Method 1)            | O(nk²)                                                      | Θ(nk) auxiliary |
+| 3   | k-way merge — pairwise / tournament (Method 2) | Θ(nk log k)                                                 | Θ(nk) auxiliary |
+
+\* Predecessor is Θ(n) in general (must traverse to find it), but Θ(1) at
+the point a traversal has already reached the target — see `Q1`'s inline
+notes for the exact accounting used.
 
 ---
 
@@ -230,8 +334,23 @@ A few conclusions that fall out of the data:
 - [x] Verifying a closed form against simulation
 - [x] Monte Carlo simulation and the law of large numbers
 - [x] Biased sampling
-- [ ] Master theorem
+- [x] Master theorem (`T(n) = aT(n/b) + f(n)`, case 2, applied to 2-way and 3-way merge sort)
 - [ ] Amortised analysis
+
+**Data Structures (Lab 02)**
+
+- [x] Dictionary ADT (Search, Insert, Delete, Max, Min, Predecessor, Successor)
+- [x] Arrays — sorted and unsorted
+- [x] Singly linked lists — sorted and unsorted
+- [x] Doubly linked lists — sorted and unsorted
+- [x] Cost trade-offs between six representations of the same interface
+
+**Divide and Conquer (Lab 02)**
+
+- [x] Merge sort and its 2-way merge subroutine
+- [x] Generalising merge sort to a k-way split (3-way merge sort)
+- [x] Merging k sorted arrays — sequential vs pairwise/tournament strategy
+- [x] Recognising the same doubling structure behind merge sort and pairwise k-way merging
 
 ---
 
@@ -300,6 +419,19 @@ To regenerate the plots after re-running the programs, run from
 cd DAA_Lab_01
 pip install pandas matplotlib --break-system-packages
 python3 generate_plots.py
+```
+
+### DAA_Lab_02
+
+```bash
+cd DAA_Lab_02/Q1_Dictionary_Operations
+gcc -O2 -o Q1 Q1_dictionary_operations.c && ./Q1
+
+cd ../Q2_Merge_sort_vs_Modified_merge_sort
+gcc -O2 -o Q2 Q2_mergesort_comparison.c && ./Q2
+
+cd ../Q3_Merging_k_sorted_arrays
+gcc -O2 -o Q3 Q3_kway_merge.c && ./Q3
 ```
 
 ---

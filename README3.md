@@ -99,7 +99,7 @@ DAA_Lab/
 │   └── Q6_Element_uniqueness/
 │       └── Q6_element_uniqueness.c
 │
-└── DAA_Lab_02/
+├── DAA_Lab_02/
     │
     ├── Q1_Dictionary_Operations/
     │   ├── q1_dictionary.c
@@ -125,6 +125,27 @@ DAA_Lab/
         ├── Q3_experimentA_vary_k.png
         ├── Q3_experimentA_vary_k_logscale.png
         └── Q3_experimentB_vary_n.png
+│
+└── DAA_Lab_03/
+    │
+    ├── Q1_Binary_vs_Ternary_Search/
+    │   ├── Q1_binary_vs_ternary_search.c
+    │
+    ├── Q2_Search_the_Defective_Coin/
+    │   ├── Q2_Search_the_Defective_Coin.c
+    │
+    ├── Q3_Max_and_Min_using_DnC_approach/
+    │   ├── Q3_Max_and_Min_using_DnC_approach.c
+    │
+    ├── Q4_Matrix_multiplication_using_DnC_approach/
+    │   ├── Q4_Matrix_multiplication_using_DnC_approach.c
+    │
+    ├── Q5_Multiply_special_pattern_square_matrix_using_DnC_approach/
+    │   ├── Q5_Multiply_special_pattern_square_matrix_using_DnC_approach.c
+    │
+    ├── Q6_Use_of_loop_invariants_in_sorting/
+    │   ├── Q6_Use_of_loop_invariants_in_sorting.c
+    └── generate_plots.py
 ```
 
 ---
@@ -135,6 +156,7 @@ DAA_Lab/
 | ------ | -------------------------------------------------------- | ----------- | --------- | ------------------------ |
 | Lab 01 | Growth of functions, empirical analysis, recurrences     | 29 Jul 2026 | 6         | [DAA_Lab_01](DAA_Lab_01) |
 | Lab 02 | Dictionary ADT costs, merge sort variants, k-way merging | 05 Aug 2026 | 3         | [DAA_Lab_02](DAA_Lab_02) |
+| Lab 03 | Divide and conquer — search, selection, matrix multiplication | 11 Aug 2026 | 6     | [DAA_Lab_03](DAA_Lab_03) |
 
 ---
 
@@ -212,6 +234,49 @@ work is scheduled, not correctness.
 
 ---
 
+## DAA_Lab_03
+
+> Divide and conquer, end to end: search, a balance-scale puzzle, a linear
+> selection bound, Strassen's matrix multiplication, an O(n²) trick for a
+> special matrix pattern, and a loop-invariant proof for selection sort.
+
+| #   | Question                          | Description                                                                                                                        | File                                                                                                                     |
+| --- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Binary vs Ternary Search           | Search a sorted array with both strategies, count comparisons, and show binary search wins despite ternary cutting into more pieces. | [Q1/Q1_binary_vs_ternary_search.c](DAA_Lab_03/Q1_Binary_vs_Ternary_Search/Q1_binary_vs_ternary_search.c)                |
+| 2   | Search the Defective Coin          | Find the one lighter coin among `n` (or report none) using a balance scale, in ⌊log₂n⌋ + c weighings via divide and conquer.         | [Q2/Q2_defective_coin.c](DAA_Lab_03/Q2_Search_the_Defective_Coin/Q2_defective_coin.c)                                    |
+| 3   | Max and Min using D&C              | Find both the max and min of an array using at most `3n/2 − 2` comparisons, instead of the naive `2n − 2`.                            | [Q3/Q3_maxmin_dc.c](DAA_Lab_03/Q3_Max_and_Min_using_DandC/Q3_maxmin_dc.c)                                                |
+| 4   | Matrix Multiplication using D&C    | Multiply two `n×n` matrices with Strassen's method — 7 recursive multiplications instead of 8, giving `O(n^log₂7)`.                  | [Q4/Q4_strassen_multiplication.c](DAA_Lab_03/Q4_Matrix_Multiplication_using_DandC/Q4_strassen_multiplication.c)         |
+| 5   | Multiply Special-Pattern Matrices  | Exploit a self-similar block pattern `M=[[M1,M2],[M2,M1]]` (recursive down to scalars) to multiply two such matrices in `O(n²)`.      | [Q5/Q5_special_pattern_multiplication.c](DAA_Lab_03/Q5_Multiply_Special_Pattern_Matrices/Q5_special_pattern_multiplication.c) |
+| 6   | Loop Invariants in Sorting         | State and prove the loop invariant for selection sort; show best case is no better than worst case.                                  | [Q6/Q6_selection_sort.c](DAA_Lab_03/Q6_Loop_Invariants_in_Sorting/Q6_selection_sort.c)                                   |
+
+---
+
+## Highlight — Q5 turns an O(n³) problem into O(n²) by exploiting structure
+
+The matrices in Q5 aren't arbitrary: `M = [[M1, M2], [M2, M1]]`, and **M1 and
+M2 have that same recursive pattern all the way down to single elements.**
+That constraint means an `n×n` matrix of this type is fully described by
+just `n` numbers, not `n²` — the block structure repeats, so most of the
+matrix is redundant.
+
+`Q5_special_pattern_multiplication.c` represents each matrix as a flat array
+of `n` "leaf" values instead of an `n×n` grid, and multiplies two of them
+using the recurrence `T(n) = 4T(n/2) + O(n)`, which solves to `Θ(n²)` by the
+master theorem (the O(n) additions are polynomially smaller than the
+`n^log₂4 = n²` term from the four recursive multiplications, so it's case 1).
+
+The measured gap against brute-force `O(n³)` multiplication on the
+*expanded* matrices is stark — at `n = 512`, the structured approach takes
+**6.4 ms** against **128.6 ms** for brute force, a **~20× speedup that keeps
+growing with n.** The structured version also happily continues to
+`n = 2048` (**66.9 ms**), a size where a full `O(n³)` brute-force
+multiplication was no longer practical to run for comparison.
+
+Both algorithms were cross-checked by expanding the structured matrices to
+full `n×n` grids and comparing entrywise — they agree at every size tested.
+
+---
+
 ## Results and Artifacts
 
 The three simulation/measurement programs export their data; the plots are
@@ -270,6 +335,36 @@ A few conclusions that fall out of the Lab 2 data:
   merging (13 µs → 10,887 µs) over the same 128× growth in `k` —
   `O(nk²)` against `O(nk log k)`, made visible rather than just asserted.
 
+### DAA_Lab_03
+A few conclusions that fall out of the Lab 3 data:
+
+- **Binary search wins on real numbers, not just asymptotics (Q1).** At
+  `n = 1,000,000`, binary search averaged **36.93** comparisons against
+  **42.36** for ternary search — ternary's extra per-level comparison costs
+  more than the extra split saves, exactly as the `1.26·log₂n` vs `log₂n`
+  analysis predicts.
+- **The coin weighings track `log₂n` almost exactly (Q2).** At `n = 100,000`
+  coins, finding the defective coin (or confirming none exists) took just
+  **16** weighings against `log₂(100,000) ≈ 16.6` — the divide-and-conquer
+  halving keeps pace with the theoretical bound at every size tested.
+- **D&C max-min beats the naive scan by a widening margin (Q3).** At
+  `n = 131,072`, the D&C approach needed **196,606** comparisons against
+  **262,142** for the naive scan — a fixed ~25% saving that holds at every
+  size, matching the `3n/2` vs `2n` bounds exactly for every power of 2.
+- **Strassen's crossover is visible, not just theoretical (Q4).** Below
+  `n = 256`, brute force is competitive or faster (constant-factor overhead
+  from the extra additions/subtractions dominates); by `n = 1024`, Strassen
+  takes **663.9 ms** against **1006.5 ms** for brute force — Strassen has
+  pulled ahead once the `O(n^2.807)` vs `O(n³)` gap outweighs its overhead.
+- **Exploiting matrix structure turns O(n³) into O(n²), and it shows (Q5).**
+  At `n = 512`, the structured approach takes **6.4 ms** against **128.6 ms**
+  for brute force on the expanded matrices — a ~20× gap that grows with `n`,
+  since only `n` values (not `n²`) describe the whole matrix.
+- **Selection sort's best case is no better than its worst case (Q6).** A
+  fully sorted input at `n = 10,000` still needed **49,995,000**
+  comparisons — identical to the random-input case — because the inner loop
+  always scans the entire remaining subarray with no early exit.
+
 ---
 
 ## Complexity Summary
@@ -305,6 +400,20 @@ A few conclusions that fall out of the Lab 2 data:
 \* Predecessor is Θ(n) in general (must traverse to find it), but Θ(1) at
 the point a traversal has already reached the target — see `Q1`'s inline
 notes for the exact accounting used.
+
+**DAA_Lab_03**
+
+| #   | Program                                          | Time                            | Space                       |
+| --- | ------------------------------------------------- | -------------------------------- | ----------------------------- |
+| 1   | Binary search                                    | Θ(log n)                        | Θ(1)                        |
+| 1   | Ternary search                                   | Θ(log₃ n), ~1.26× more comparisons than binary | Θ(1)      |
+| 2   | Defective coin — divide and conquer              | Θ(log n) weighings              | Θ(log n) recursion depth    |
+| 3   | Max-Min — divide and conquer                     | Θ(n), ≤ 3n/2 − 2 comparisons     | Θ(log n) recursion depth    |
+| 3   | Max-Min — naive scan                             | Θ(n), 2n − 2 comparisons         | Θ(1)                        |
+| 4   | Strassen's matrix multiplication                 | O(n^log₂7) ≈ O(n^2.807)         | Θ(n²) auxiliary             |
+| 4   | Brute-force matrix multiplication                | Θ(n³)                           | Θ(1) auxiliary              |
+| 5   | Special-pattern matrix multiplication            | Θ(n²) (compact n-value representation) | Θ(n) per matrix, Θ(n²) to expand |
+| 6   | Selection sort                                   | Θ(n²) worst **and** best case   | Θ(1) auxiliary              |
 
 ---
 
@@ -351,6 +460,16 @@ notes for the exact accounting used.
 - [x] Generalising merge sort to a k-way split (3-way merge sort)
 - [x] Merging k sorted arrays — sequential vs pairwise/tournament strategy
 - [x] Recognising the same doubling structure behind merge sort and pairwise k-way merging
+
+**Divide and Conquer (Lab 03)**
+
+- [x] Binary vs ternary search — comparing split factor against per-level comparison cost
+- [x] The counterfeit/defective-coin problem — decision-based divide and conquer with a balance scale
+- [x] Simultaneous maximum and minimum — halving the comparison count via paired recursion
+- [x] Strassen's matrix multiplication — trading 8 recursive multiplications for 7
+- [x] Exploiting problem structure to beat the generic bound (special-pattern matrices, O(n³) → O(n²))
+- [x] Loop invariants — initialization, maintenance, termination as a correctness proof technique
+- [x] Master theorem applied to T(n)=4T(n/2)+O(n) (Q5) and T(n)=7T(n/2)+O(n²) (Q4, Strassen)
 
 ---
 
@@ -432,6 +551,36 @@ gcc -O2 -o Q2 Q2_mergesort_comparison.c && ./Q2
 
 cd ../Q3_Merging_k_sorted_arrays
 gcc -O2 -o Q3 Q3_kway_merge.c && ./Q3
+```
+
+### DAA_Lab_03
+
+```bash
+cd DAA_Lab_03/Q1_Binary_vs_Ternary_Search
+gcc -O2 -o Q1 Q1_binary_vs_ternary_search.c && ./Q1
+
+cd ../Q2_Search_the_Defective_Coin
+gcc -O2 -o Q2 Q2_defective_coin.c -lm && ./Q2
+
+cd ../Q3_Max_and_Min_using_DandC
+gcc -O2 -o Q3 Q3_maxmin_dc.c && ./Q3
+
+cd ../Q4_Matrix_Multiplication_using_DandC
+gcc -O2 -o Q4 Q4_strassen_multiplication.c && ./Q4
+
+cd ../Q5_Multiply_Special_Pattern_Matrices
+gcc -O2 -o Q5 Q5_special_pattern_multiplication.c && ./Q5
+
+cd ../Q6_Loop_Invariants_in_Sorting
+gcc -O2 -o Q6 Q6_selection_sort.c && ./Q6
+```
+
+Regenerate the plots after re-running the programs from `DAA_Lab_03/`:
+
+```bash
+cd DAA_Lab_03
+pip install pandas matplotlib --break-system-packages
+python3 generate_plots.py
 ```
 
 ---

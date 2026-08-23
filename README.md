@@ -25,7 +25,10 @@ Most of these questions ask for more than "does it run" — they ask what
 happens as `n` grows. So the programs here do two jobs: solve the problem,
 and instrument it — counting comparisons, counting moves, tabulating values
 across a range of `n` — then export that data as CSV so the growth can be
-plotted rather than just asserted.
+plotted rather than just asserted. (Lab 04 is the exception: its questions
+ask only for a correct algorithm at a stated asymptotic bound, so those
+programs validate correctness via embedded test cases instead of
+exporting timing data.)
 
 ---
 
@@ -146,6 +149,20 @@ DAA_Lab/
     ├── Q6_Use_of_loop_invariants_in_sorting/
     │   ├── Q6_Use_of_loop_invariants_in_sorting.c
     └── generate_plots.py
+│
+└── DAA_Lab_04/
+    │
+    ├── Application_of_sorting-I
+    │
+    ├── Application_of_sorting-II
+    │
+    ├── Application_of_sorting-III
+    │
+    ├── Application_of_sorting-IV
+    │
+    ├── Application_of_sorting-V
+    │
+    └── Application_of_sorting-VI
 ```
 
 ---
@@ -156,7 +173,8 @@ DAA_Lab/
 | ------ | -------------------------------------------------------- | ----------- | --------- | ------------------------ |
 | Lab 01 | Growth of functions, empirical analysis, recurrences     | 29 Jul 2026 | 6         | [DAA_Lab_01](DAA_Lab_01) |
 | Lab 02 | Dictionary ADT costs, merge sort variants, k-way merging | 05 Aug 2026 | 3         | [DAA_Lab_02](DAA_Lab_02) |
-| Lab 03 | Divide and conquer — search, selection, matrix multiplication | 11 Aug 2026 | 6     | [DAA_Lab_03](DAA_Lab_03) |
+| Lab 03 | Divide and conquer — search, selection, matrix multiplication | 12 Aug 2026 | 6     | [DAA_Lab_03](DAA_Lab_03) |
+| Lab 04 | Applications of sorting — greedy/sweep-line uses of a sorted order | 19 Aug 2026 | 6     | [DAA_Lab_04](DAA_Lab_04) |
 
 ---
 
@@ -277,6 +295,45 @@ full `n×n` grids and comparing entrywise — they agree at every size tested.
 
 ---
 
+## DAA_Lab_04
+
+> Applications of sorting — six problems that are each solved by choosing
+> the right sort key/order and then doing a linear (or near-linear) pass
+> that exploits it. Unlike Labs 01–03, this lab asks only for a correct,
+> validated algorithm at a stated complexity bound, not an empirical
+> growth study — so there's no CSV/PNG pipeline here, just source +
+> embedded test harnesses.
+
+| #   | Question                    | Description                                                                                                            | File                                                                                                                       |
+| --- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Sort by Colour                | Group `n` (number, colour) pairs by colour in `O(n)` via stable counting sort, keeping numbers sorted within each colour.  | [Q1/Q1_sort_by_colour.c](DAA_Lab_04/Q1_Sort_by_Colour/Q1_sort_by_colour.c)                                                   |
+| 2   | Two-Set Pair Sum              | Given `S1`, `S2` and target `x`, decide in `O(n log n)` whether some `a∈S1, b∈S2` sum to `x`, via sort + binary search.   | [Q2/Q2_two_set_pair_sum.c](DAA_Lab_04/Q2_Two_Set_Pair_Sum/Q2_two_set_pair_sum.c)                                             |
+| 3   | k-Sum Subset                  | Test whether `k` elements of `S` sum to `T` in `O(n^(k-1) log n)`, via sort + recursive `(k-1)`-loop + binary search.      | [Q3/Q3_k_sum_subset.c](DAA_Lab_04/Q3_K_Sum_Subset/Q3_k_sum_subset.c)                                                         |
+| 4   | Max Simultaneous Attendees    | Given entry/exit times for `n` people, find the time of peak concurrent attendance in `O(n log n)` via a sweep line.       | [Q4/Q4_max_simultaneous_attendees.c](DAA_Lab_04/Q4_Max_Simultaneous_Attendees/Q4_max_simultaneous_attendees.c)               |
+| 5   | Merge Overlapping Intervals   | Merge a list of `n` intervals into their non-overlapping union in `O(n log n)`, via sort-by-start + linear merge.          | [Q5/Q5_merge_overlapping_intervals.c](DAA_Lab_04/Q5_Merge_Overlapping_Intervals/Q5_merge_overlapping_intervals.c)           |
+| 6   | Max Point Coverage             | Find a point covered by the most of `n` intervals in `O(n log n)`, via sweep line with a start-before-end tie-break.       | [Q6/Q6_max_point_coverage.c](DAA_Lab_04/Q6_Max_Point_Coverage/Q6_max_point_coverage.c)                                       |
+
+---
+
+## Highlight — Q6 needs a tie-break rule that Q4 doesn't
+
+Q4 and Q6 are both sweep lines over `+1`/`-1` events, but they aren't
+interchangeable. Q4's times are guaranteed distinct, so any stable sort
+over event time is correct. Q6's interval endpoints are **inclusive**, so
+two events can legitimately land on the same coordinate — one interval
+ending at `c`, another starting at `c` — and both must count as covering
+point `c`.
+
+Sorting those two events arbitrarily would, half the time, apply the `-1`
+before the `+1` and undercount the true peak at `c` by one. The fix is a
+comparator that breaks time-ties by putting `+1` (starts) strictly before
+`-1` (ends): `return eb->delta - ea->delta;` when times are equal. Test 4
+in `Q6_max_point_coverage.c` exists specifically to pin this down — two
+intervals `(1,5)` and `(5,10)` sharing endpoint `5` must report a coverage
+of 2 at `p=5`, not 1.
+
+---
+
 ## Results and Artifacts
 
 The three simulation/measurement programs export their data; the plots are
@@ -365,6 +422,36 @@ A few conclusions that fall out of the Lab 3 data:
   comparisons — identical to the random-input case — because the inner loop
   always scans the entire remaining subarray with no early exit.
 
+### DAA_Lab_04
+
+No CSV/plot artifacts for this lab — every program here is validated by an
+embedded test harness in `main()` rather than a growth-rate measurement,
+so "results" means test-case pass/fail, not timing data.
+
+- **Two of the lab-sheet's own worked examples are reproduced exactly
+  (Q5, Q6).** Q5's example `{(1,3),(2,6),(8,10),(7,18)}` merges to exactly
+  `{(1,6),(7,18)}` as specified. Q6's example
+  `{(10,40),(20,60),(50,90),(15,70)}` achieves a max coverage of **3**, matching
+  the lab sheet's claim (found at `p=20` in this implementation; the lab
+  sheet's own `p=50` is an equally valid point achieving the same count,
+  since coverage-3 holds across a whole sub-range).
+- **Stability is the whole trick in Q1.** A 3-way partition (Dutch
+  National Flag) also sorts by colour in `O(n)`, but doesn't preserve the
+  original number order within a colour — only a stable counting sort
+  does, which is why the approach counts occurrences and prefix-sums
+  before writing anything, rather than swapping in place.
+- **Q3's recursion count matches the stated bound exactly.** For `k=4` on
+  `n=7` integers (Test 4), the search space is `C(6,3) ≈ 20` combinations
+  of 3 fixed elements before each is resolved by one `O(log n)` binary
+  search — consistent with `O(n^(k-1) log n)` for small `n`, `k`.
+- **Q4 and Q6 share a skeleton but not a comparator.** Both sweep `+1`/`-1`
+  events, but Q6 needs an explicit tie-break (`+1` before `-1` at equal
+  coordinates) that Q4 doesn't, because Q6's intervals have inclusive
+  endpoints that can coincide — see the highlight above.
+- **All 6 programs compile clean under `-Wall -Wextra -std=c11`** with zero
+  warnings, and every embedded test case (31 across the six programs)
+  passes.
+
 ---
 
 ## Complexity Summary
@@ -414,6 +501,17 @@ notes for the exact accounting used.
 | 4   | Brute-force matrix multiplication                | Θ(n³)                           | Θ(1) auxiliary              |
 | 5   | Special-pattern matrix multiplication            | Θ(n²) (compact n-value representation) | Θ(n) per matrix, Θ(n²) to expand |
 | 6   | Selection sort                                   | Θ(n²) worst **and** best case   | Θ(1) auxiliary              |
+
+**DAA_Lab_04**
+
+| #   | Program                                          | Time                             | Space                         |
+| --- | ------------------------------------------------- | ----------------------------------- | -------------------------------- |
+| 1   | Sort by colour (stable counting sort)            | Θ(n)                              | Θ(n) auxiliary                |
+| 2   | Two-set pair sum (sort + binary search)          | Θ(n log n)                        | Θ(n) auxiliary (sorted copy)   |
+| 3   | k-sum subset (sort + recursive picks + binary search) | O(n^(k−1) · log n)           | Θ(k) recursion depth          |
+| 4   | Max simultaneous attendees (sweep line)          | Θ(n log n)                        | Θ(n) auxiliary (event array)   |
+| 5   | Merge overlapping intervals (sort + linear merge) | Θ(n log n)                        | Θ(n) auxiliary                |
+| 6   | Max point coverage (sweep line, tie-broken)      | Θ(n log n)                        | Θ(n) auxiliary (event array)   |
 
 ---
 
@@ -470,6 +568,17 @@ notes for the exact accounting used.
 - [x] Exploiting problem structure to beat the generic bound (special-pattern matrices, O(n³) → O(n²))
 - [x] Loop invariants — initialization, maintenance, termination as a correctness proof technique
 - [x] Master theorem applied to T(n)=4T(n/2)+O(n) (Q5) and T(n)=7T(n/2)+O(n²) (Q4, Strassen)
+
+**Applications of Sorting (Lab 04)**
+
+- [x] Stable vs unstable sorting, and why stability matters for a
+      secondary key (Q1)
+- [x] Counting sort as an O(n) alternative when the key space is small
+- [x] Sort + binary search as a general pattern for existence queries (Q2, Q3)
+- [x] Generalising 2-SUM to k-SUM via recursion over a sorted array (Q3)
+- [x] Sweep-line / event-based processing for interval problems (Q4, Q6)
+- [x] Interval merging via sort-by-start (Q5)
+- [x] Tie-breaking in event sorts when interval endpoints are inclusive (Q6)
 
 ---
 
@@ -581,6 +690,31 @@ Regenerate the plots after re-running the programs from `DAA_Lab_03/`:
 cd DAA_Lab_03
 pip install pandas matplotlib --break-system-packages
 python3 generate_plots.py
+```
+
+### DAA_Lab_04
+
+Every program's test harness lives in its own `main()` — just build and
+run, no separate test driver or plot step:
+
+```bash
+cd DAA_Lab_04/Q1_Sort_by_Colour
+gcc -Wall -Wextra -std=c11 -o Q1 Q1_sort_by_colour.c && ./Q1
+
+cd ../Q2_Two_Set_Pair_Sum
+gcc -Wall -Wextra -std=c11 -o Q2 Q2_two_set_pair_sum.c && ./Q2
+
+cd ../Q3_K_Sum_Subset
+gcc -Wall -Wextra -std=c11 -o Q3 Q3_k_sum_subset.c && ./Q3
+
+cd ../Q4_Max_Simultaneous_Attendees
+gcc -Wall -Wextra -std=c11 -o Q4 Q4_max_simultaneous_attendees.c && ./Q4
+
+cd ../Q5_Merge_Overlapping_Intervals
+gcc -Wall -Wextra -std=c11 -o Q5 Q5_merge_overlapping_intervals.c && ./Q5
+
+cd ../Q6_Max_Point_Coverage
+gcc -Wall -Wextra -std=c11 -o Q6 Q6_max_point_coverage.c && ./Q6
 ```
 
 ---

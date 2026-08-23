@@ -100,7 +100,7 @@ DAA_Lab/
 │       └── Q6_element_uniqueness.c
 │
 ├── DAA_Lab_02/
-    │
+|    │
     ├── Q1_Dictionary_Operations/
     │   ├── q1_dictionary.c
     │   ├── q1_dictionary_benchmark.csv

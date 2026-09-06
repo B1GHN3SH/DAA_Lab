@@ -150,7 +150,7 @@ DAA_Lab/
     │   ├── Q6_Use_of_loop_invariants_in_sorting.c
     └── generate_plots.py
 │
-└── DAA_Lab_04/
+├── DAA_Lab_04/
     │
     ├── Application_of_sorting-I
     │
@@ -163,6 +163,27 @@ DAA_Lab/
     ├── Application_of_sorting-V
     │
     └── Application_of_sorting-VI
+│
+├── DAA_Lab_05/
+    │
+    ├── Q1_MedianWithoutSorting/
+    │   └── Q1_median_quickselect.c
+    │
+    ├── Q2_KthSmallestElement/
+    │   └── Q2_kth_smallest.c
+    │
+    ├── Q3_QuickSortFile/
+    │   └── Q3_quicksort_file.c
+    │
+    └── Q4_HeapSortFile/
+        └── Q4_heapsort_file.c
+│
+└── DAA_Lab_06/          # NOTE: kept flat (no Q#_Title subfolders), unlike Labs 01-05
+    │
+    ├── q1_array_ops.c
+    ├── q2_matrix_ops.c
+    ├── q3_convolution.c
+    └── q4_reversal_sort.c
 ```
 
 ---
@@ -175,6 +196,8 @@ DAA_Lab/
 | Lab 02 | Dictionary ADT costs, merge sort variants, k-way merging | 05 Aug 2026 | 3         | [DAA_Lab_02](DAA_Lab_02) |
 | Lab 03 | Divide and conquer — search, selection, matrix multiplication | 12 Aug 2026 | 6     | [DAA_Lab_03](DAA_Lab_03) |
 | Lab 04 | Applications of sorting — greedy/sweep-line uses of a sorted order | 19 Aug 2026 | 6     | [DAA_Lab_04](DAA_Lab_04) |
+| Lab 05 | Order statistics without sorting, and file-based Quicksort/Heapsort | 26 Aug 2026 | 4     | [DAA_Lab_05](DAA_Lab_05) |
+| Lab 06 | Array/matrix statistics, FFT convolution, and reversal-based sorting | 02 Sep 2026 | 4     | [DAA_Lab_06](DAA_Lab_06) |
 
 ---
 
@@ -334,6 +357,86 @@ of 2 at `p=5`, not 1.
 
 ---
 
+## DAA_Lab_05
+
+> Order statistics answered directly (no full sort needed) via randomized
+> quickselect, plus two classic O(n log n) comparison sorts operating on
+> file-based input. Like Lab 04, each program is validated by an embedded
+> self-test harness (checked against C's `qsort`) rather than a growth-rate
+> study.
+
+| #   | Question              | Description                                                                                                          | File                                                                                        |
+| --- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 1   | Median without Sorting | Find the median of `n` numbers without fully sorting them, using randomized quickselect.                                 | [Q1/Q1_median_quickselect.c](DAA_Lab_05/Q1_MedianWithoutSorting/Q1_median_quickselect.c)   |
+| 2   | K'th Smallest Element   | Find the `k`'th smallest of `n` numbers without fully sorting them, again via randomized quickselect.                     | [Q2/Q2_kth_smallest.c](DAA_Lab_05/Q2_KthSmallestElement/Q2_kth_smallest.c)                 |
+| 3   | Quicksort on a File     | Generate `n` random integers into `input.txt`, sort them with randomized-pivot quicksort, write `output.txt`.            | [Q3/Q3_quicksort_file.c](DAA_Lab_05/Q3_QuickSortFile/Q3_quicksort_file.c)                  |
+| 4   | Heapsort on a File      | Generate `n` random integers into `input.txt`, sort them with build-heap + extract-max heapsort, write `output.txt`.     | [Q4/Q4_heapsort_file.c](DAA_Lab_05/Q4_HeapSortFile/Q4_heapsort_file.c)                     |
+
+---
+
+## Highlight — Quickselect answers "which rank?" without paying for a full order
+
+Q1 and Q2 could both be solved by sorting first and indexing in — `Θ(n log
+n)`. Quickselect does better by recursing into only the **one** partition
+that can still contain the target rank and discarding the other side
+entirely, the same Lomuto-partition idea as quicksort but without the
+second recursive call. That drops the expected cost to `Θ(n)`, at the price
+of an `O(n²)` worst case if the random pivot keeps landing badly — the same
+trade-off randomized quicksort makes, just for a selection query instead of
+a full order.
+
+Heapsort (Q4) makes the opposite trade: its build phase looks like `n`
+calls to an `O(log n)` sift-down (`O(n log n)`), but a tighter amortized
+count — most nodes sit near the bottom of the tree and sift down only a
+short distance — brings the build phase down to a true `O(n)`. Extraction
+still costs `O(n log n)`, so the total stays `O(n log n)` in the best,
+average, **and** worst case, unlike quicksort's `O(n²)` worst case — the
+property that makes heapsort attractive despite usually running slower in
+practice.
+
+---
+
+## DAA_Lab_06
+
+> Array and matrix statistics with their exact worst-case complexities,
+> convolution via the FFT, and sorting a permutation using only a `reverse`
+> primitive. **Folder note:** unlike Labs 01–05, this lab's four files sit
+> directly inside `DAA_Lab_06/` rather than in one `Q#_Title/` subfolder
+> per question, and use lowercase filenames.
+
+| #   | Question              | Description                                                                                                                                    | File                                                     |
+| --- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1   | 1D Array Operations    | Max, first/second largest, mean, median (quickselect), std-dev, mode, duplicate removal, reversal, and pivot partitioning on an unsorted array, each with its derived worst-case bound. | [q1_array_ops.c](DAA_Lab_06/q1_array_ops.c)              |
+| 2   | n×n Matrix Operations   | Addition, naive multiplication, zero/symmetry checks, determinant (Gaussian elimination with partial pivoting), in-place transpose, and dominant eigenvalue/eigenvector via the power method. | [q2_matrix_ops.c](DAA_Lab_06/q2_matrix_ops.c)             |
+| 3   | Convolution via FFT     | Compute the linear convolution of two vectors in `O(n log n)` with a Cooley–Tukey FFT (convolution theorem), cross-checked against `O(m·n)` naive convolution. | [q3_convolution.c](DAA_Lab_06/q3_convolution.c)           |
+| 4   | Sorting via Reversals   | Sort a permutation using only a `reverse(p,i,j)` primitive: Part A uses `O(n)` reversal calls (`Θ(n²)` worst-case total cost); Part B bounds total cost to `O(n log²n)` via reversal-based rotation + in-place merge sort. | [q4_reversal_sort.c](DAA_Lab_06/q4_reversal_sort.c)       |
+
+---
+
+## Highlight — Q4 separates "how many reversals" from "how much do they cost"
+
+`reverse(p, i, j)` is the only primitive Q4 is allowed to use, and its cost
+is its length, `j - i + 1`. Part A shows any permutation sorts in at most
+`n - 1` reversal *calls* (selection sort with reversal: for each position,
+find where the correct next value sits in the unsorted suffix and reverse
+it into place) — `O(n)` calls, but each reversal can itself be `O(n)` long,
+so the total *cost* summed across all calls can still be `Θ(n²)`.
+
+Part B fixes the cost, not the call count, by restructuring the sort as
+merge sort, `T(n) = 2T(n/2) + Merge(n)`, and implementing the merge step
+itself with reversals instead of an auxiliary array: a three-reversal
+rotation (`reverse(i,mid-1); reverse(mid,j); reverse(i,j)`) splices two
+adjacent sorted runs together, and pairing that rotation with a binary
+search for the splice point (the same technique behind `std::inplace_merge`)
+keeps one merge of size `s` at `O(s log s)` total reversal length. That
+makes the merge recurrence `T(n) = 2T(n/2) + O(n log n)`, which solves to
+`O(n log²n)` — the required bound — using nothing but the mandated
+`reverse` primitive, and the driver's `cost / (n·log₂n)²` column (printed
+across sizes 64 → 4096) confirms the ratio stays bounded rather than
+drifting upward.
+
+---
+
 ## Results and Artifacts
 
 The three simulation/measurement programs export their data; the plots are
@@ -452,6 +555,42 @@ so "results" means test-case pass/fail, not timing data.
   warnings, and every embedded test case (31 across the six programs)
   passes.
 
+### DAA_Lab_05
+
+No CSV/plot artifacts here either — order statistics and the two sorts are
+validated against C's `qsort()` via embedded randomized self-tests
+(counts in the table below), plus a real `input.txt` → `output.txt` run
+for Q3 and Q4.
+
+| # | Trials | N range | Result |
+| - | ------ | ------- | ------ |
+| Q1 | 200/200 passed | up to 500 | Median matches `qsort()`-derived median on every trial. |
+| Q2 | 200/200 passed | up to 500, random `k` each trial | K'th smallest matches `qsort()`-derived rank on every trial. |
+| Q3 | 100/100 passed | up to 1000 | Quicksort output matches `qsort()`; end-to-end `input.txt` → `output.txt` spot-checked. |
+| Q4 | 100/100 passed | up to 1000 | Heapsort output matches `qsort()`; end-to-end `input.txt` → `output.txt` spot-checked. |
+
+### DAA_Lab_06
+
+No CSV/plot artifacts for this lab either — each program prints an
+operation-count (or, for Q3, a numeric-error) check straight to the
+console rather than exporting a growth-rate series.
+
+- **The op-counters track their derived bounds directly (Q1, Q2).** Every
+  linear routine in Q1 (max, mean, std-dev, reversal, pivot partition) logs
+  an operation count equal to `n` or `n-1`; the two quadratic routines
+  (mode, duplicate removal) log counts that scale with `n²` on the sample
+  input, matching the `O(n)` / `O(n²)` split derived in the comments.
+- **FFT and naive convolution agree to floating-point precision (Q3).** The
+  driver convolves a length-3 and a length-6 vector both ways and reports
+  the max absolute error between the two results, which comes back at
+  essentially machine epsilon — confirming the FFT/convolution-theorem
+  implementation is correct, not just fast.
+- **Part B's total cost tracks `n·log₂²n`, not `n²` (Q4).** The driver
+  scales `n` from 64 to 4096 and prints `total_cost / (n·log₂n)²` at each
+  size; that ratio stays roughly constant across the whole range rather
+  than drifting upward, which is the empirical signature of an
+  `O(n log²n)` bound rather than a hidden quadratic one.
+
 ---
 
 ## Complexity Summary
@@ -512,6 +651,34 @@ notes for the exact accounting used.
 | 4   | Max simultaneous attendees (sweep line)          | Θ(n log n)                        | Θ(n) auxiliary (event array)   |
 | 5   | Merge overlapping intervals (sort + linear merge) | Θ(n log n)                        | Θ(n) auxiliary                |
 | 6   | Max point coverage (sweep line, tie-broken)      | Θ(n log n)                        | Θ(n) auxiliary (event array)   |
+
+**DAA_Lab_05**
+
+| #   | Program                          | Time                          | Space           |
+| --- | ---------------------------------- | -------------------------------- | ------------------ |
+| 1   | Median without sorting (quickselect) | Θ(n) average, O(n²) worst    | Θ(1) extra       |
+| 2   | K'th smallest (quickselect)         | Θ(n) average, O(n²) worst    | Θ(1) extra       |
+| 3   | Quicksort on a file (randomized pivot) | Θ(n log n) average, O(n²) worst | O(log n) stack |
+| 4   | Heapsort on a file (build-heap + extract-max) | Θ(n log n) best/average/worst | Θ(1) extra |
+
+**DAA_Lab_06**
+
+| #   | Program                                          | Time                             | Space              |
+| --- | --------------------------------------------------- | ----------------------------------- | ---------------------- |
+| 1   | Max / first-and-second-largest / mean / std-dev / reversal / pivot partition | Θ(n) each | Θ(1) auxiliary |
+| 1   | Median (quickselect, within Q1)                  | Θ(n) average, O(n²) worst           | Θ(n) working copy   |
+| 1   | Mode (pairwise counting, no hashing / range assumed) | O(n²)                            | Θ(1) auxiliary      |
+| 1   | Remove duplicates (in place, no hashing)         | O(n²)                              | Θ(1) auxiliary      |
+| 2   | Matrix addition                                   | Θ(n²)                              | Θ(n²) output         |
+| 2   | Matrix multiplication (naive triple loop)         | Θ(n³)                              | Θ(n²) output         |
+| 2   | Is-zero / is-symmetric checks                     | O(n²) worst (early-exit)           | Θ(1) auxiliary       |
+| 2   | Transpose in place                                | Θ(n²)                              | Θ(1) auxiliary       |
+| 2   | Determinant (Gaussian elimination, partial pivoting) | Θ(n³)                            | Θ(n²) working copy   |
+| 2   | Dominant eigenvalue/eigenvector (power method)    | O(k·n²) for k iterations           | Θ(n) auxiliary       |
+| 3   | Convolution via FFT (Cooley–Tukey)                | Θ(n log n)                         | Θ(n) auxiliary (complex arrays) |
+| 3   | Convolution, naive (cross-check only)             | Θ(m·n)                             | Θ(m+n) output         |
+| 4   | Sorting via reversals — Part A (selection by reversal) | O(n) reversal calls, Θ(n²) worst-case total cost | Θ(1) auxiliary |
+| 4   | Sorting via reversals — Part B (rotate + in-place merge sort) | Θ(n log²n) total reversal cost | O(log n) recursion depth |
 
 ---
 
@@ -579,6 +746,41 @@ notes for the exact accounting used.
 - [x] Sweep-line / event-based processing for interval problems (Q4, Q6)
 - [x] Interval merging via sort-by-start (Q5)
 - [x] Tie-breaking in event sorts when interval endpoints are inclusive (Q6)
+
+**Order Statistics and Sorting (Lab 05)**
+
+- [x] Order statistics / selection problem
+- [x] Randomized quickselect (partition-and-recurse-one-side)
+- [x] Quicksort with a randomized pivot (Lomuto partition scheme)
+- [x] Heapsort (bottom-up heap construction, sift-down extraction)
+- [x] File-based input/output in C (`fopen`, `fscanf`, `fprintf`)
+- [x] Correctness verification against `qsort()` via randomized self-tests
+
+**Array/Matrix Statistics, FFT, and Reversal Sorting (Lab 06)**
+
+- [x] Deriving worst-case bounds for common array statistics (max, top-2,
+      mean, median, std-dev, mode)
+- [x] Median via quickselect reused as a subroutine (Q1)
+- [x] Duplicate removal without hashing — O(n²) — vs. the O(n)-expected
+      hash-set alternative (Q1)
+- [x] Partitioning an array around a random pivot in one linear pass (Q1)
+- [x] Dense n×n matrix representation and cache-friendly indexing (Q2)
+- [x] Matrix addition, naive O(n³) multiplication, zero/symmetry checks,
+      in-place transpose (Q2)
+- [x] Determinant via Gaussian elimination with partial pivoting (Q2)
+- [x] Power method for the dominant eigenvalue/eigenvector, O(k·n²) (Q2)
+- [x] Convolution theorem — pointwise multiplication in the frequency
+      domain equals convolution in the time domain (Q3)
+- [x] Cooley–Tukey FFT as divide and conquer, T(N) = 2T(N/2) + O(N) (Q3)
+- [x] Zero-padding to the next power of two for linear (non-circular)
+      convolution (Q3)
+- [x] Sorting under a restricted primitive — only `reverse(p,i,j)` allowed
+      (Q4)
+- [x] Selection sort expressed as reversals — O(n) reversal calls (Q4)
+- [x] Distinguishing reversal *count* from reversal *cost* (Q4)
+- [x] Three-reversal block rotation, and rotation + binary search as an
+      in-place merge (`std::inplace_merge`-style) (Q4)
+- [x] Recurrence T(n) = 2T(n/2) + O(n log n) solving to O(n log²n) (Q4)
 
 ---
 
@@ -717,6 +919,49 @@ cd ../Q6_Max_Point_Coverage
 gcc -Wall -Wextra -std=c11 -o Q6 Q6_max_point_coverage.c && ./Q6
 ```
 
+### DAA_Lab_05
+
+Each program embeds a randomized self-test harness (checked against
+`qsort()`) that runs automatically on startup, before prompting for
+interactive input:
+
+```bash
+cd DAA_Lab_05/Q1_MedianWithoutSorting
+gcc -O2 -Wall -o Q1 Q1_median_quickselect.c && ./Q1
+# Enter N, then N integers -> prints the median
+
+cd ../Q2_KthSmallestElement
+gcc -O2 -Wall -o Q2 Q2_kth_smallest.c && ./Q2
+# Enter N, then N integers, then K -> prints the K'th smallest element
+
+cd ../Q3_QuickSortFile
+gcc -O2 -Wall -o Q3 Q3_quicksort_file.c && ./Q3
+# Enter N -> generates input.txt, sorts it, writes output.txt
+
+cd ../Q4_HeapSortFile
+gcc -O2 -Wall -o Q4 Q4_heapsort_file.c && ./Q4
+# Enter N -> generates input.txt, sorts it, writes output.txt
+```
+
+### DAA_Lab_06
+
+Files sit directly inside `DAA_Lab_06/` (no per-question subfolder). Each
+program's `main()` runs its own demo/self-check and prints results
+straight to the console — no separate test driver, CSV, or plot step.
+Q1 and Q2 need `-lm` (they call `sqrt`/`fabs`); Q3 needs it too for the
+FFT's trig calls; Q4 doesn't touch `math.h`:
+
+```bash
+cd DAA_Lab_06
+gcc -O2 -Wall -o q1_array_ops q1_array_ops.c -lm && ./q1_array_ops
+
+gcc -O2 -Wall -o q2_matrix_ops q2_matrix_ops.c -lm && ./q2_matrix_ops
+
+gcc -O2 -Wall -o q3_convolution q3_convolution.c -lm && ./q3_convolution
+
+gcc -O2 -Wall -o q4_reversal_sort q4_reversal_sort.c && ./q4_reversal_sort
+```
+
 ---
 
 ## Repository Conventions
@@ -728,6 +973,11 @@ gcc -Wall -Wextra -std=c11 -o Q6 Q6_max_point_coverage.c && ./Q6
 - Sources are named `Q<number>_<short_description>.c`.
 - Generated CSVs keep the name of the analysis they describe, and their
   plots share that name with a `.png` extension.
+- **Exception — `DAA_Lab_06`:** its four sources sit directly in the lab
+  folder (`q1_array_ops.c`, `q2_matrix_ops.c`, `q3_convolution.c`,
+  `q4_reversal_sort.c`) rather than in per-question subfolders, and use
+  lowercase `q<number>_<short_description>.c` names instead of the
+  `Q<number>_...` convention used everywhere else.
 
 ---
 

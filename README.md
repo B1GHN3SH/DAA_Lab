@@ -28,7 +28,10 @@ across a range of `n` — then export that data as CSV so the growth can be
 plotted rather than just asserted. (Lab 04 is the exception: its questions
 ask only for a correct algorithm at a stated asymptotic bound, so those
 programs validate correctness via embedded test cases instead of
-exporting timing data.)
+exporting timing data. Lab 07 is similar in spirit — it asks for puzzle
+algorithms and their derived complexity, not growth-rate measurements —
+but goes one step further and ships a companion Word report alongside
+the source, rather than CSV/PNG artifacts.)
 
 ---
 
@@ -178,12 +181,35 @@ DAA_Lab/
     └── Q4_HeapSortFile/
         └── Q4_heapsort_file.c
 │
-└── DAA_Lab_06/          # NOTE: kept flat (no Q#_Title subfolders), unlike Labs 01-05
+├── DAA_Lab_06/          # NOTE: kept flat (no Q#_Title subfolders), unlike Labs 01-05
+│   │
+│   ├── q1_array_ops.c
+│   ├── q2_matrix_ops.c
+│   ├── q3_convolution.c
+│   └── q4_reversal_sort.c
+│
+└── DAA_Lab_07/
     │
-    ├── q1_array_ops.c
-    ├── q2_matrix_ops.c
-    ├── q3_convolution.c
-    └── q4_reversal_sort.c
+    ├── Q1_Coin_Triangle_Inversion/
+    │   └── Q1_coin_triangle_inversion.c
+    │
+    ├── Q2_Super_Egg_Drop/
+    │   └── Q2_super_egg_drop.c
+    │
+    ├── Q3_Reves_Puzzle/
+    │   └── Q3_reves_puzzle.c
+    │
+    ├── Q4_Security_Switches/
+    │   └── Q4_security_switches.c
+    │
+    ├── Q5_Hitting_Moving_Target/
+    │   └── Q5_hitting_moving_target.c
+    │
+    ├── Q6_Best_Time_To_Be_Alive/
+    │   └── Q6_best_time_to_be_alive.c
+    │
+    ├── Q7_Matrix_Chain_Multiplication/
+    └── Q7_matrix_chain_multiplication.c 
 ```
 
 ---
@@ -198,6 +224,7 @@ DAA_Lab/
 | Lab 04 | Applications of sorting — greedy/sweep-line uses of a sorted order | 19 Aug 2026 | 6     | [DAA_Lab_04](DAA_Lab_04) |
 | Lab 05 | Order statistics without sorting, and file-based Quicksort/Heapsort | 26 Aug 2026 | 4     | [DAA_Lab_05](DAA_Lab_05) |
 | Lab 06 | Array/matrix statistics, FFT convolution, and reversal-based sorting | 02 Sep 2026 | 4     | [DAA_Lab_06](DAA_Lab_06) |
+| Lab 07 | Algorithm design for classic puzzles — combinatorics, DP, recursion, sweep line | 09 Sep 2026 | 7     | [DAA_Lab_07](DAA_Lab_07) |
 
 ---
 
@@ -413,6 +440,31 @@ practice.
 
 ---
 
+## DAA_Lab_07
+
+> Algorithm design and analysis applied to seven classic puzzles — no
+> single technique unifies the lab; each question calls for a different
+> tool (closed-form combinatorics, DP, divide-and-conquer recursion,
+> parity/invariant arguments, sweep line) and is cross-checked against a
+> brute-force or textbook-known answer rather than taken on faith.
+> **Deliverable note:** alongside the source files, this lab also ships a
+> Word report (`DAA_Lab07_Report.docx`) with the full derivation,
+> complexity analysis, code listing, and sample run for every question —
+> see [Repository Conventions](#repository-conventions) for why this lab
+> is the one exception to the CSV/PNG artifact pattern.
+
+| #   | Question                     | Description                                                                                                                                     | File                                                                                              |
+| --- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| 1   | Invert the Coin-Triangle      | Minimum coin slides to flip an n-row triangle upside down; closed form `M(n) = ⌊n(n+1)/6⌋`, validated by brute-force lattice-overlap search.      | [Q1/Q1_coin_triangle_inversion.c](DAA_Lab_07/Q1_Coin_Triangle_Inversion/Q1_coin_triangle_inversion.c) |
+| 2   | Super Egg Testing Experiment  | Generalized egg-drop DP for `E` eggs, `F` floors, with a binary-search-optimized split and a cross-check via the dual "max floors resolvable" formulation. | [Q2/Q2_super_egg_drop.c](DAA_Lab_07/Q2_Super_Egg_Drop/Q2_super_egg_drop.c)                          |
+| 3   | Reve's Puzzle                 | 4-peg Tower of Hanoi via the Frame–Stewart recursion; `n=8` disks solved in exactly 33 moves, with the full move sequence generated and counted. | [Q3/Q3_reves_puzzle.c](DAA_Lab_07/Q3_Reves_Puzzle/Q3_reves_puzzle.c)                                |
+| 4   | Security Switches             | Minimum toggles to turn `n` switches off under a Chinese-Rings-style legality rule; `T(n) = ⌊2^(n+1)/3⌋`, BFS-verified after an initial 2ⁿ−1 guess was disproved. | [Q4/Q4_security_switches.c](DAA_Lab_07/Q4_Security_Switches/Q4_security_switches.c)                 |
+| 5   | Hitting a Moving Target       | Guaranteed-hit shooting strategy against a target that moves to an adjacent spot each turn; up-then-down sweep, `2(n−2)` shots, verified by exhaustive adversarial possible-position simulation. | [Q5/Q5_hitting_moving_target.c](DAA_Lab_07/Q5_Hitting_Moving_Target/Q5_hitting_moving_target.c)    |
+| 6   | The Best Time to Be Alive     | Sweep-line maximum interval overlap over scientists' birth/death years, with the problem's own death-before-birth tie rule encoded in the event comparator. | [Q6/Q6_best_time_to_be_alive.c](DAA_Lab_07/Q6_Best_Time_To_Be_Alive/Q6_best_time_to_be_alive.c)     |
+| 7   | Matrix Chain Multiplication   | Classic interval DP for optimal parenthesization; validated against the CLRS textbook example (30,35,15,5,10,20,25 → 15125 multiplications).     | [Q7/Q7_matrix_chain_multiplication.c](DAA_Lab_07/Q7_Matrix_Chain_Multiplication/Q7_matrix_chain_multiplication.c) |
+
+---
+
 ## Highlight — Q4 separates "how many reversals" from "how much do they cost"
 
 `reverse(p, i, j)` is the only primitive Q4 is allowed to use, and its cost
@@ -434,6 +486,32 @@ makes the merge recurrence `T(n) = 2T(n/2) + O(n log n)`, which solves to
 `reverse` primitive, and the driver's `cost / (n·log₂n)²` column (printed
 across sizes 64 → 4096) confirms the ratio stays bounded rather than
 drifting upward.
+
+---
+
+## Highlight — Lab 07's two "the obvious guess is wrong" corrections
+
+Two of the seven puzzles looked, at first glance, like restatements of
+Tower of Hanoi — and in both cases that resemblance was a trap, caught
+only by building an exhaustive brute-force verifier instead of trusting
+the pattern match.
+
+**Q4 (Security Switches)** has exactly the same "only the rightmost lever
+moves freely" legality shape as Hanoi's "only the smallest disk moves
+freely," which suggests `T(n) = 2T(n−1) + 1 = 2ⁿ − 1`. A full breadth-first
+search over the `2ⁿ`-state switch configuration space says otherwise: for
+`n = 5`, the true shortest solution takes **21** moves, not 31. The
+puzzle is actually isomorphic to the Chinese-Rings (Baguenaudier) puzzle,
+whose recurrence `T(n) = 2·T(n−1) + (n mod 2)` gives the closed form
+`T(n) = ⌊2^(n+1)/3⌋` — confirmed against the BFS for every `n` up to 20.
+
+**Q5 (Hitting a Moving Target)** invites the guess "sweep 2..n−1, then
+repeat the same sweep" to cover both parity classes the target could be
+in. An exhaustive adversarial simulation — tracking the *set* of all
+positions still consistent with survival, rather than any single
+trajectory — shows that guess fails for every even `n`. The fix is an
+up-then-down sweep (`2,3,...,n−1,n−1,...,3,2`), which the same verifier
+confirms guarantees a hit for `n = 2` through `20+`.
 
 ---
 
@@ -591,6 +669,44 @@ console rather than exporting a growth-rate series.
   than drifting upward, which is the empirical signature of an
   `O(n log²n)` bound rather than a hidden quadratic one.
 
+### DAA_Lab_07
+
+No CSV/plot artifacts here either — every program validates its own
+answer in-console (formula vs. brute-force / BFS / DP cross-check /
+textbook value) rather than exporting a growth-rate series. The one
+extra artifact this lab has that no other lab does is the Word report
+(`DAA_Lab07_Report.docx`), which carries the full derivation,
+complexity table, code listing, and sample run for all seven questions
+in one document.
+
+- **Q1's brute-force overlap search matches the closed form at every
+  tested size.** For `n=4` (10 coins) the maximum-overlap search finds
+  exactly 3 coins must move; for `n=15` (120 coins) the formula alone
+  (brute force is skipped past `n=10`) gives 40.
+- **Q2 reproduces the classical egg-drop instance exactly.** `E=2`
+  eggs, `F=100` floors needs **14** guaranteed drops, matching both the
+  DP table and the independent "max floors resolvable" cross-check.
+- **Q3's generated move sequence is self-consistent.** For `n=8` disks
+  the Frame–Stewart DP predicts **33** moves, and the program's own
+  move-by-move simulation (4-peg and 3-peg legs both counted) reaches
+  exactly 33 as well — the puzzle's namesake result.
+- **Q4's BFS caught a wrong initial guess before it shipped.** The
+  "looks like Hanoi" guess of `2ⁿ−1` moves was tested against an
+  exhaustive BFS over the full switch-state space and found wrong; the
+  corrected closed form `⌊2^(n+1)/3⌋` (21 moves at `n=5`, not 31) was
+  confirmed by BFS for every `n` up to 20.
+- **Q5's adversarial simulation caught a second wrong guess.** Repeating
+  the same sweep twice fails for even `n`; the corrected up-then-down
+  sweep was verified to guarantee a hit for every `n` from 2 to 20+.
+- **Q6's tie rule changes the answer, not just the bookkeeping.** On a
+  synthetic test with a death and a birth in the same year, honoring
+  the problem's "death before birth" rule gives a maximum of **2**
+  people alive at once; ignoring the tie rule would have (incorrectly)
+  counted 3.
+- **Q7 matches the CLRS textbook instance exactly.** Dimensions
+  `30,35,15,5,10,20,25` give a minimum of **15125** scalar
+  multiplications via `((A1(A2A3))((A4A5)A6))`.
+
 ---
 
 ## Complexity Summary
@@ -679,6 +795,22 @@ notes for the exact accounting used.
 | 3   | Convolution, naive (cross-check only)             | Θ(m·n)                             | Θ(m+n) output         |
 | 4   | Sorting via reversals — Part A (selection by reversal) | O(n) reversal calls, Θ(n²) worst-case total cost | Θ(1) auxiliary |
 | 4   | Sorting via reversals — Part B (rotate + in-place merge sort) | Θ(n log²n) total reversal cost | O(log n) recursion depth |
+
+**DAA_Lab_07**
+
+| #   | Program                                              | Time                                                       | Space                                  |
+| --- | ------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------ |
+| 1   | Coin-triangle inversion — formula                    | O(1)                                                       | O(1)                                   |
+| 1   | Coin-triangle inversion — brute-force validator (n≤10) | O(n⁶)                                                      | O(n²)                                  |
+| 2   | Egg drop DP (binary-search split)                    | O(E·F·log F)                                               | O(E·F)                                 |
+| 3   | Reve's puzzle — Frame–Stewart DP over split k         | O(n²)                                                      | O(n)                                   |
+| 3   | Reve's puzzle — move sequence generation (n≤10)       | O(FS(n)) — exponential                                     | O(n) recursion depth                   |
+| 4   | Security switches — closed form / DP                 | O(1) / O(n)                                                | O(1) / O(n)                            |
+| 4   | Security switches — BFS validator (n≤20)              | O(2ⁿ·n)                                                    | O(2ⁿ)                                  |
+| 5   | Hitting a moving target — shot sequence               | O(n)                                                       | O(n)                                   |
+| 5   | Hitting a moving target — adversarial-set verifier    | O(n²)                                                      | O(n)                                   |
+| 6   | Best time to be alive — sweep line                    | O(n log n)                                                 | O(n)                                   |
+| 7   | Matrix chain multiplication — interval DP             | O(n³)                                                      | O(n²)                                  |
 
 ---
 
@@ -781,6 +913,26 @@ notes for the exact accounting used.
 - [x] Three-reversal block rotation, and rotation + binary search as an
       in-place merge (`std::inplace_merge`-style) (Q4)
 - [x] Recurrence T(n) = 2T(n/2) + O(n log n) solving to O(n log²n) (Q4)
+
+**Puzzle-Based Algorithm Design (Lab 07)**
+
+- [x] Combinatorial closed-form derivation via lattice-overlap
+      maximization (Q1)
+- [x] 2-D dynamic programming with a binary-search-optimized split
+      point, plus a dual formulation used as an independent cross-check (Q2)
+- [x] Divide-and-conquer generalisation of Tower of Hanoi to extra pegs
+      (Frame–Stewart algorithm) (Q3)
+- [x] Recognising — and disproving by brute force — a plausible but
+      incorrect recurrence, then deriving the correct one (Q4, Q5)
+- [x] Parity and invariant arguments for guaranteed-search strategies (Q5)
+- [x] Exhaustive adversarial simulation (tracking a *set* of possible
+      states rather than one trajectory) as a correctness verifier (Q5)
+- [x] Sweep-line maximum interval overlap, with an explicit
+      tie-breaking rule baked into the event comparator (Q6)
+- [x] Interval (chain) dynamic programming and parenthesization
+      reconstruction via backtracking (Q7)
+- [x] Validating every result against a brute-force check, an
+      independent DP cross-check, or a known textbook/classical value
 
 ---
 
@@ -962,6 +1114,45 @@ gcc -O2 -Wall -o q3_convolution q3_convolution.c -lm && ./q3_convolution
 gcc -O2 -Wall -o q4_reversal_sort q4_reversal_sort.c && ./q4_reversal_sort
 ```
 
+### DAA_Lab_07
+
+Each program takes its main parameter either as a command-line argument
+(or arguments, for Q7's dimension list) or falls back to interactive
+`scanf` input if none is given, and self-checks its own answer against
+a brute-force search, an independent DP formulation, or a known value
+before printing its table:
+
+```bash
+cd DAA_Lab_07/Q1_Coin_Triangle_Inversion
+gcc -O2 -Wall -o Q1 Q1_coin_triangle_inversion.c && ./Q1 4
+# n (rows) -> minimum coin moves, brute-force validated for n<=10
+
+cd ../Q2_Super_Egg_Drop
+gcc -O2 -Wall -o Q2 Q2_super_egg_drop.c && ./Q2 2 100
+# E eggs, F floors -> minimum guaranteed drops
+
+cd ../Q3_Reves_Puzzle
+gcc -O2 -Wall -o Q3 Q3_reves_puzzle.c && ./Q3 8
+# n disks, 4 pegs -> Frame-Stewart move count + full move sequence (n<=10)
+
+cd ../Q4_Security_Switches
+gcc -O2 -Wall -o Q4 Q4_security_switches.c && ./Q4 5
+# n switches -> minimum toggles, BFS-verified for n<=20
+
+cd ../Q5_Hitting_Moving_Target
+gcc -O2 -Wall -o Q5 Q5_hitting_moving_target.c && ./Q5 10
+# n hiding spots -> guaranteed shot sequence, adversarial-set verified
+
+cd ../Q6_Best_Time_To_Be_Alive
+gcc -O2 -Wall -o Q6 Q6_best_time_to_be_alive.c && ./Q6
+# no args -> runs on a small built-in demo data set of scientists
+# (optional) ./Q6 data.txt -> reads "birth death" pairs, one per line
+
+cd ../Q7_Matrix_Chain_Multiplication
+gcc -O2 -Wall -o Q7 Q7_matrix_chain_multiplication.c && ./Q7 30 35 15 5 10 20 25
+# p[0..n] dimensions -> minimum scalar multiplications + optimal parenthesization
+```
+
 ---
 
 ## Repository Conventions
@@ -978,6 +1169,14 @@ gcc -O2 -Wall -o q4_reversal_sort q4_reversal_sort.c && ./q4_reversal_sort
   `q4_reversal_sort.c`) rather than in per-question subfolders, and use
   lowercase `q<number>_<short_description>.c` names instead of the
   `Q<number>_...` convention used everywhere else.
+- **Exception — `DAA_Lab_07`:** back to per-question `Q<number>_Title/`
+  subfolders and `Q<number>_...` filenames, but no CSV/PNG artifacts —
+  these programs validate their own answers in-console (brute force,
+  BFS, or an independent DP cross-check) rather than measuring growth
+  rates. In their place, the lab folder also carries a single Word
+  report (`DAA_Lab07_Report.docx`) covering the algorithm derivation,
+  complexity analysis, full code, and a sample run for all seven
+  questions in one document.
 
 ---
 

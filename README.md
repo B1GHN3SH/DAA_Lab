@@ -31,7 +31,11 @@ programs validate correctness via embedded test cases instead of
 exporting timing data. Lab 07 is similar in spirit — it asks for puzzle
 algorithms and their derived complexity, not growth-rate measurements —
 but goes one step further and ships a companion Word report alongside
-the source, rather than CSV/PNG artifacts.)
+the source, rather than CSV/PNG artifacts. Labs 08–10 — dynamic
+programming, greedy algorithms, and Union-Find graph problems — follow
+the same validation-first pattern as Labs 04–07: every program carries
+its own brute-force or independent-DP cross-check in `main()` rather than
+exporting timing data.)
 
 ---
 
@@ -188,7 +192,7 @@ DAA_Lab/
 │   ├── q3_convolution.c
 │   └── q4_reversal_sort.c
 │
-└── DAA_Lab_07/
+├── DAA_Lab_07/
     │
     ├── Q1_Coin_Triangle_Inversion/
     │   └── Q1_coin_triangle_inversion.c
@@ -210,6 +214,58 @@ DAA_Lab/
     │
     ├── Q7_Matrix_Chain_Multiplication/
     └── Q7_matrix_chain_multiplication.c 
+│
+├── DAA_Lab_08/          # NOTE: flat again (no Q#_Title subfolders), like Lab 06 — but Q<n>_ names
+│   │
+│   ├── Q1_min_coin_change.c
+│   ├── Q2_coin_change_ways.c
+│   ├── Q3_lcs.c
+│   ├── Q4_lis.c
+│   ├── Q5_msis.c
+│   ├── Q6_edit_distance.c
+│   ├── Q7_rod_cutting.c
+│   ├── Q8_obst.c
+│   └── Q9_collatz.c
+│
+├── DAA_Lab_09/
+│   │
+│   ├── Q1_Fractional_Knapsack_Decay/
+│   │   └── Q1_knapsack_decay.c
+│   │
+│   ├── Q2_Huffman_Coding/
+│   │   └── Q2_huffman_canonical.c
+│   │
+│   ├── Q3_Minimum_Refuelling_Stops/
+│   │   └── Q3_min_refuel_stops.c
+│   │
+│   ├── Q4_Connect_Sticks/
+│   │   └── Q4_connect_sticks.c
+│   │
+│   ├── Q5_Candy_Distribution/
+│   │   └── Q5_candy.c
+│   │
+│   ├── Q6_Reorganise_String_K_Apart/
+│   │   └── Q6_reorganise_k.c
+│   │
+│   ├── Q7_Minimise_Deviation/
+│   │   └── Q7_min_deviation.c
+│   │
+│   ├── Q8_Meeting_Rooms/
+│   │   └── Q8_meeting_rooms.c
+│   │
+│   ├── Q9_Hu_Tucker/
+│   │   └── Q9_hu_tucker.c
+│   │
+│   └── Q10_Greedy_Superstring/
+│       └── Q10_greedy_superstring.c
+│
+└── DAA_Lab_10/          # NOTE: flat (no Q#_Title subfolders), like Labs 06 and 08
+    │
+    ├── Q1_online_bipartiteness.c
+    ├── Q2_dynamic_islands.c
+    ├── Q3_max_weight_component.c
+    ├── Q4_reverse_dsu.c
+    └── Q5_lex_smallest_permutation.c
 ```
 
 ---
@@ -225,6 +281,9 @@ DAA_Lab/
 | Lab 05 | Order statistics without sorting, and file-based Quicksort/Heapsort | 26 Aug 2026 | 4     | [DAA_Lab_05](DAA_Lab_05) |
 | Lab 06 | Array/matrix statistics, FFT convolution, and reversal-based sorting | 02 Sep 2026 | 4     | [DAA_Lab_06](DAA_Lab_06) |
 | Lab 07 | Algorithm design for classic puzzles — combinatorics, DP, recursion, sweep line | 09 Sep 2026 | 7     | [DAA_Lab_07](DAA_Lab_07) |
+| Lab 08 | Dynamic programming — coin change, LCS/LIS, edit distance, rod cutting, optimal BST, Collatz | 29 Sep 2026 | 9 | [DAA_Lab_08](DAA_Lab_08) |
+| Lab 09 | Greedy paradigm — knapsack with decay, Huffman, heap and interval greedies, Hu–Tucker, superstring | 06 Oct 2026 | 10 | [DAA_Lab_09](DAA_Lab_09) |
+| Lab 10 | Graphs and Union-Find (DSU) — online bipartiteness, dynamic islands, reverse-time deletion | 13 Oct 2026 | 5 | [DAA_Lab_10](DAA_Lab_10) |
 
 ---
 
@@ -515,6 +574,137 @@ confirms guarantees a hit for `n = 2` through `20+`.
 
 ---
 
+## DAA_Lab_08
+
+> Dynamic programming, nine ways — counting and optimising over coins,
+> sequences, strings, rods and key probabilities, plus one plain-C
+> assignment on the Collatz map. Every DP is checked against an
+> exponential brute force or a textbook value rather than taken on faith.
+> **Folder note:** like Lab 06, this lab's files sit directly inside
+> `DAA_Lab_08/` rather than in per-question subfolders, but they keep the
+> capital-`Q` `Q<n>_<description>.c` naming.
+
+| #   | Question                          | Description                                                                                                                                              | File                                              |
+| --- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| 1   | Minimum Coin Change               | Fewest coins summing to `V`, via `dp[v] = 1 + min dp[v − c]`; returns −1 when `V` is unreachable. `O(nV)` time, `O(V)` space.                             | [Q1_min_coin_change.c](DAA_Lab_08/Q1_min_coin_change.c)   |
+| 2   | Coin Change — Number of Ways      | Count combinations (order ignored) that make `V`; coins in the outer loop so each multiset is counted once. `O(nV)` time, `O(V)` space.                  | [Q2_coin_change_ways.c](DAA_Lab_08/Q2_coin_change_ways.c) |
+| 3   | Longest Common Subsequence        | LCS length plus the subsequence itself, rebuilt by walking back through the table. `O(mn)` time and space.                                                | [Q3_lcs.c](DAA_Lab_08/Q3_lcs.c)                           |
+| 4   | Longest Increasing Subsequence    | Strictly increasing LIS two ways: the `O(n²)` DP and the `O(n log n)` tails-array with binary search; both cross-checked against a subset brute force.    | [Q4_lis.c](DAA_Lab_08/Q4_lis.c)                           |
+| 5   | Maximum Sum Increasing Subsequence | Increasing subsequence of maximum sum, with a `prev[]` array to reconstruct it. `O(n²)` time, `O(n)` space.                                              | [Q5_msis.c](DAA_Lab_08/Q5_msis.c)                         |
+| 6   | Edit Distance                     | Insert/delete/substitute at unit cost, with a traceback that prints the actual edit script. `O(mn)` time and space (the traceback needs the full table). | [Q6_edit_distance.c](DAA_Lab_08/Q6_edit_distance.c)       |
+| 7   | Rod Cutting                       | Maximum revenue for a rod of length `n`, with the optimal piece list reconstructed from the first-cut array. `O(n²)` time, `O(n)` space.                  | [Q7_rod_cutting.c](DAA_Lab_08/Q7_rod_cutting.c)           |
+| 8   | Optimal Binary Search Tree        | CLRS expected-search-cost DP over key and dummy-key probabilities, with the optimal tree printed from the root table. `O(n³)` time, `O(n²)` space.        | [Q8_obst.c](DAA_Lab_08/Q8_obst.c)                         |
+| 9   | Collatz Analysis                  | Overflow-guarded step function, a `realloc`-grown trajectory, and a range scan reporting the longest chain and highest peak without storing paths.       | [Q9_collatz.c](DAA_Lab_08/Q9_collatz.c)                   |
+
+---
+
+## Highlight — Lab 08: loop order decides what Q2 counts
+
+Q1 and Q2 share the same one-dimensional table and nearly the same
+inner update, but they ask different questions, and in Q2 the *order of
+the two loops* is the whole answer. With the coins in the **outer** loop
+and the amounts in the inner one (`for coin: for v: dp[v] += dp[v − coin]`),
+each coin is "finished" before the next is considered, so `{1,2}` and
+`{2,1}` can never both be built — every multiset is counted exactly
+once, which is what "combinations, order ignored" means. Swapping the
+loops would count *ordered* sequences instead: for `{1,2,3}` and
+`V = 4` that turns the correct answer of **4** into 7.
+
+Q4 makes a similar point about strictness. Both LIS programs ask for a
+*strictly* increasing subsequence, so the `O(n log n)` version binary-searches
+for the first tail `≥ a[i]` (not `> a[i]`) and overwrites it — which is
+exactly why `[7,7,7,7]` correctly gives **1**, not 4.
+
+---
+
+## DAA_Lab_09
+
+> The greedy paradigm across ten problems — most follow one shape
+> (sort or heapify, then repeatedly commit to the best local choice) and
+> each justifies that choice with an exchange argument in its header
+> comment. As with Labs 04–08, there is no CSV/PNG pipeline: every
+> program validates itself against an exhaustive search or an independent
+> DP, and every program also reads its own input via `./qN stdin`.
+
+| #   | Question                       | Description                                                                                                                                                                                  | File                                                                                                                                      |
+| --- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Fractional Knapsack with Decay | Each item's value density decays at its own rate `λ` over consumption time. Items are ordered by `λ` descending (exchange argument) and a DP then chooses the amounts; shows the naive "best current density" greedy is **not** optimal. | [Q1/Q1_knapsack_decay.c](DAA_Lab_09/Q1_Fractional_Knapsack_Decay/Q1_knapsack_decay.c)                                                      |
+| 2   | Huffman Coding                 | Min-heap Huffman tree, then a **canonical** codebook: codes assigned in order of (length, symbol), so the book is fully determined by the code lengths. `O(n log n)`.                       | [Q2/Q2_huffman_canonical.c](DAA_Lab_09/Q2_Huffman_Coding/Q2_huffman_canonical.c)                                                           |
+| 3   | Minimum Refuelling Stops       | Fewest stops to reach a target given stations `(distance, fuel)`; drives as far as possible and *retroactively* refuels at the largest passed station only when forced, via a max-heap. `O(n log n)`. | [Q3/Q3_min_refuel_stops.c](DAA_Lab_09/Q3_Minimum_Refuelling_Stops/Q3_min_refuel_stops.c)                                                  |
+| 4   | Connect Sticks                 | Minimum total cost to join `n` sticks when each join costs the sum of the two lengths — repeatedly merge the two shortest. Equivalent to Huffman merging. `O(n log n)`.                     | [Q4/Q4_connect_sticks.c](DAA_Lab_09/Q4_Connect_Sticks/Q4_connect_sticks.c)                                                                 |
+| 5   | Candy Distribution             | Minimum candies so every child with a higher rating than a neighbour gets more than that neighbour: a two-pass scan, plus an `O(1)`-space up/down/peak slope scan as a cross-check. `O(n)`.  | [Q5/Q5_candy.c](DAA_Lab_09/Q5_Candy_Distribution/Q5_candy.c)                                                                              |
+| 6   | Reorganise String K Apart      | Rearrange a string so equal characters are at least `K` positions apart: max-heap of available characters plus a size-`K` cooldown queue. `O(n log σ)`.                                    | [Q6/Q6_reorganise_k.c](DAA_Lab_09/Q6_Reorganise_String_K_Apart/Q6_reorganise_k.c)                                                          |
+| 7   | Minimise Deviation             | Minimise `max − min` when odd values may be doubled and even values halved: double every odd element once, then keep halving the current maximum from a max-heap. `O(n log n log M)`.       | [Q7/Q7_min_deviation.c](DAA_Lab_09/Q7_Minimise_Deviation/Q7_min_deviation.c)                                                               |
+| 8   | Meeting Rooms                  | Minimum rooms for a set of half-open `[s, e)` meetings: sort starts and ends independently and sweep with two pointers. `O(n log n)`.                                                       | [Q8/Q8_meeting_rooms.c](DAA_Lab_09/Q8_Meeting_Rooms/Q8_meeting_rooms.c)                                                                    |
+| 9   | Hu–Tucker                      | Optimal *alphabetic* binary tree (leaves must stay in order), via the Garsia–Wachs greedy; leaf depths are read off the phase-1 tree and an order-preserving stack rebuild proves them realisable. | [Q9/Q9_hu_tucker.c](DAA_Lab_09/Q9_Hu_Tucker/Q9_hu_tucker.c)                                                                                |
+| 10  | Greedy Superstring             | Greedy max-overlap merging for the (NP-hard) shortest common superstring, compared against a brute-force optimum on tiny instances to probe how bad the greedy ratio can get.              | [Q10/Q10_greedy_superstring.c](DAA_Lab_09/Q10_Greedy_Superstring/Q10_greedy_superstring.c)                                                 |
+
+---
+
+## Highlight — Lab 09: Q1's "obvious" greedy loses, and Q2/Q4 are one algorithm
+
+**Q1 is the lab's cautionary tale.** With deteriorating density, the
+tempting greedy is "always consume the item with the best *current*
+density". The program's own counter-example kills it: item A (`d = 10`,
+`λ = 4`, weight 1) and item B (`d = 9`, `λ = 0`, weight 1) with capacity
+2. The instantaneous greedy grabs A, switches to B once A decays below
+9, then returns to A, for a total of **14.004**; simply consuming A then
+B yields **17.000**. The repair is to split the decision: an exchange
+argument shows that, for any fixed amounts, consuming items in
+non-increasing `λ` order minimises total decay loss, so that ordering is
+the greedy part, and a DP over (item, weight consumed so far) picks the
+amounts. The price is that the DP is pseudo-polynomial,
+`O(n·W·w_max)`, and exact for integer weights.
+
+**Q2 and Q4 are the same greedy.** In Q4, a stick of length `L` that
+takes part in `k` joins contributes `L·k` to the total cost — exactly
+`L · depth(L)` in the merge tree — so the cheapest way to connect sticks
+is the minimum weighted external path length, i.e. a Huffman tree. Both
+programs run the identical "pop the two smallest, push their sum" loop on
+a binary heap; Q2 goes one step further and canonicalises the resulting
+code lengths.
+
+---
+
+## DAA_Lab_10
+
+> Graph problems that all reduce to the Union-Find (disjoint-set union)
+> structure, each extending the basic `find`/`union` in a different
+> direction: a parity bit, a size-and-sum payload, a lazy-deletion heap,
+> and running time backwards. As in Labs 04–09 there is no CSV/PNG
+> pipeline; every program embeds a brute-force cross-check. **Folder
+> note:** like Labs 06 and 08, the five files sit directly inside
+> `DAA_Lab_10/`.
+
+| #   | Question                          | Description                                                                                                                                                                                       | File                                                                  |
+| --- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 1   | Online Bipartiteness Testing      | Edges arrive as a stream; DSU stores each vertex's colour relative to its parent so an edge that would close an **odd** cycle (including a self-loop) is rejected on arrival. `O(V + E·α(V))`.   | [Q1_online_bipartiteness.c](DAA_Lab_10/Q1_online_bipartiteness.c)             |
+| 2   | Dynamic Islands (grid)            | Number-of-Islands-II: add land cells one at a time and report the island count after each, on a flattened `id = r·C + c` grid. Adding land does `count++`, each real merge does `count--`. `O(k·α(RC))`. | [Q2_dynamic_islands.c](DAA_Lab_10/Q2_dynamic_islands.c)                       |
+| 3   | Max-Weight Component, Size ≤ K    | After every edge, report the heaviest component whose size is at most `K`. DSU keeps size and sum per root; a max-heap with lazy deletion handles components that stop qualifying. `O((V+E)·α(V) + V log V)`. | [Q3_max_weight_component.c](DAA_Lab_10/Q3_max_weight_component.c)             |
+| 4   | Reverse Time-Step DSU             | Max component sum after each of `V` vertex deletions: DSU can't split, so time runs backwards and vertices are *re-inserted* in reverse deletion order. `O((V+E)·α(V))`.                          | [Q4_reverse_dsu.c](DAA_Lab_10/Q4_reverse_dsu.c)                               |
+| 5   | Lexicographically Smallest Permutation | Swaps along edges generate every permutation within a connected component, so each component's values are sorted onto its positions; a value scan of `1..n` avoids any comparison sort. `O(n + m·α(n))`. | [Q5_lex_smallest_permutation.c](DAA_Lab_10/Q5_lex_smallest_permutation.c)     |
+
+---
+
+## Highlight — Lab 10: Q3's answer can go *down*
+
+Most "maintain a maximum while merging" problems let a running maximum
+suffice, because a merge never makes the best answer worse. Q3 breaks
+that: a component of size `≤ K` is a valid candidate, but when it is
+merged into something that pushes the size past `K` it stops being one —
+so the best valid weight can *decrease* as edges arrive, and a single
+`best = max(best, …)` variable would be wrong.
+
+The fix is a max-heap of **snapshots** `(sum, root, size)`, pushed
+whenever a component of size `≤ K` is created, with *lazy deletion*: a
+snapshot is stale the moment its root is no longer a root or its size
+has changed, and stale tops are simply popped when a query arrives. Each
+merge pushes at most one new snapshot, so total pushes stay `≤ 2V` and
+the whole run stays near `O((V+E) log V)`. Because it compares sums
+directly, it also stays correct for negative vertex weights.
+
+---
+
 ## Results and Artifacts
 
 The three simulation/measurement programs export their data; the plots are
@@ -707,6 +897,124 @@ in one document.
   `30,35,15,5,10,20,25` give a minimum of **15125** scalar
   multiplications via `((A1(A2A3))((A4A5)A6))`.
 
+### DAA_Lab_08
+
+No CSV/plot artifacts here either — each program prints its answer next
+to the expected textbook/known value and, where a brute force is cheap
+enough, a randomized comparison against it.
+
+- **Q1 handles both ends of the range.** `{186, 419, 83, 408}` with
+  `V = 6249` needs **20** coins; `{2}` with `V = 3` correctly returns
+  **−1**; and the DP agrees with an exponential recursion on all 300
+  random small instances.
+- **Q2 reproduces the classic counts.** `{1,5,10,25}` with `V = 100`
+  gives **242** ways, and `{1,2,3}` with `V = 4` gives **4**; the DP
+  matches an include/exclude recursion for every `V` from 0 to 20.
+- **Q3 returns a valid subsequence, not just a length.** `ABCBDAB` vs
+  `BDCABA` gives length **4** (`BCBA`) and `AGGTAB` vs `GXTXAYB` gives
+  **4** (`GTAB`); the program also checks that each reconstructed string
+  really is a subsequence of both inputs.
+- **Q4's two algorithms agree everywhere.** The `O(n²)` DP and the
+  `O(n log n)` tails-array both match a subset-enumeration brute force on
+  300 random arrays, and both give **4** on `[10,9,2,5,3,7,101,18]`.
+- **Q5 finds the right subsequence, not just the sum.** On
+  `[1,101,2,3,100,4,5]` the best increasing subsequence is `[1,2,3,100]`
+  with sum **106** — *not* the tempting `[1,101]` — and all 300 random
+  cases match brute force.
+- **Q6's traceback cost equals the DP distance every time.**
+  `kitten → sitting`, `horse → ros` and `sunday → saturday` all give
+  distance **3**, and the printed edit script's own operation count
+  matches that distance in each case.
+- **Q7 shows when *not* cutting is wrong.** With the CLRS prices, `n = 4`
+  yields **10** via `2 + 2`, `n = 7` yields **18** via `1 + 6`, and
+  `n = 10` yields **30** uncut; with a price table that rewards short
+  pieces, `n = 8` yields **24** from eight length-1 pieces. The DP
+  matches brute force for every `n` from 1 to 10.
+- **Q8 matches both CLRS instances.** The `n = 5` instance gives expected
+  search cost **2.75** (root `k2`), the `n = 7` instance gives **3.12**,
+  and the one-key degenerate case gives **1.00**.
+- **Q9 reproduces the well-known Collatz landmarks.** `n = 27` takes
+  **111** steps with a peak of **9232**; over `[1, 100000]` the longest
+  chain starts at **77031** (**350** steps) and the highest peak,
+  **1,570,824,736**, comes from **77671** — with zero 64-bit overflows
+  thanks to the `3n + 1` guard.
+
+### DAA_Lab_09
+
+No CSV/plot artifacts for this lab either — "results" means validation
+counts from the embedded randomized harnesses, plus the demo answer each
+program prints on its built-in instance.
+
+| #   | Trials  | Checked against                                       | Result                                                                     |
+| --- | ------- | ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| Q1  | 1500    | Exhaustive search over all orderings × integer amounts | 0 mismatches; naive instantaneous greedy was suboptimal in **401/1500**.   |
+| Q2  | 3000    | Kraft sum, prefix-freeness, independent merge cost, `H ≤ L < H+1` | 0 failures.                                                    |
+| Q3  | 5000    | `O(n²)` "farthest reach with exactly `k` stops" DP     | 0 mismatches.                                                              |
+| Q4  | 4000    | Exhaustive recursion over every pair choice (`n ≤ 7`)  | 0 mismatches.                                                              |
+| Q5  | 20000   | Fixed-point relaxation (and the `O(1)`-space slope scan) | 0 mismatches.                                                            |
+| Q6  | 20000   | Exhaustive feasibility search (strings of length ≤ 8)  | 0 mismatches across **9,439** feasible cases.                              |
+| Q7  | 20000   | Exhaustive enumeration of every reachable value combination | 0 mismatches.                                                         |
+| Q8  | 20000   | Brute-force maximum overlap at every start point       | 0 mismatches.                                                              |
+| Q9  | 5000    | Classic `O(n³)` interval DP, plus an in-order rebuild   | 0 mismatches.                                                              |
+| Q10 | 20000   | Brute-force optimum over all orderings (tiny instances) | Worst random ratio **1.429**; none above 2.                                |
+
+A few demo answers worth knowing:
+
+- **Q1:** on the counter-example, naive greedy gets **14.004** against an
+  optimum of **17.000** (see the highlight above).
+- **Q2:** frequencies `a:45, b:13, c:12, d:16, e:9, f:5` get code lengths
+  1, 3, 3, 3, 4, 4 and an expected length of **224/100 = 2.24** bits per
+  symbol.
+- **Q3:** target 100, initial fuel 10, stations `(10,60) (20,30) (30,30)
+  (60,40)` needs **2** stops.
+- **Q4:** sticks `{2, 4, 3, 6}` cost **29** to join.
+- **Q5:** ratings `1 0 2 5 3 2 2` get candies `2 1 2 3 2 1 1`, total
+  **12**.
+- **Q6:** `aabbcc` with `K = 3` becomes `abcabc`.
+- **Q7:** `{4, 1, 5, 20}` can be brought to a minimum deviation of **3**.
+- **Q8:** meetings `[0,30) [5,10) [15,20)` need **2** rooms.
+- **Q9:** weights `7 2 1 3 9 4` give optimal cost **61** with leaf depths
+  `2 4 4 3 2 2`.
+- **Q10:** the classic family `{c(ab)^m, (ab)^m c, (ba)^m}` pushes the
+  greedy-to-optimal ratio up as `m` grows — **1.000, 1.500, 1.667,
+  1.750** for `m = 1, 4, 7, 10` — consistent with the known ratio-2
+  lower bound. These instances are far too small to say anything about
+  the *upper* bound, which remains an open conjecture; the program only
+  reproduces the known family and searches small random cases.
+
+### DAA_Lab_10
+
+No CSV/plot artifacts — each program runs a built-in test set plus a
+randomized brute-force comparison and prints a single pass/fail line.
+
+| #   | Checks | Brute force it is compared with                                  | Result      |
+| --- | ------ | ---------------------------------------------------------------- | ----------- |
+| Q1  | 36,077 | BFS 2-colouring of the edges accepted so far                      | 0 failed    |
+| Q2  | 58,525 | Flood-fill count of islands over the whole grid after each op     | 0 failed    |
+| Q3  | 51,489 | Re-labelling all components from scratch after each edge          | 0 failed    |
+| Q4  | 20,186 | Rebuilding components from scratch after each vertex deletion     | 0 failed    |
+| Q5  | 5,315  | BFS over every permutation reachable by the allowed swaps         | 0 failed    |
+
+- **Q1 never needs an adjacency list.** Colour parity lives in the DSU,
+  so an edge is accepted or rejected in `O(α(V))` amortised without
+  re-colouring anything.
+- **Q2's duplicate and out-of-range operations are handled, not
+  ignored.** Re-adding an existing land cell, or a cell outside the grid,
+  leaves the island count unchanged, and both cases are in the test set.
+- **Q3's answer really does fall.** The hand example (vertex weights
+  `4 3 5 2 6`, `K = 3`) has the best valid weight run **6 → 7 → 7 → 6 →
+  none** as edges arrive: once `{1,2,3,4}` outgrows `K`, the component
+  that held the maximum stops qualifying. The tests also cover `K = 0`,
+  where no component is ever valid, and 4,000 random instances with
+  negative weights.
+- **Q4 runs in `O((V+E)·α(V))` instead of `O(V·(V+E))`.** Re-inserting
+  vertices in reverse deletion order means each vertex and each edge is
+  touched once, versus recomputing every component after every deletion.
+- **Q5 never sorts.** Because `A` is a permutation of `1..n`, scanning
+  the values in increasing order and handing each to the next free
+  position of its component yields the lexicographically smallest
+  result in linear time.
+
 ---
 
 ## Complexity Summary
@@ -811,6 +1119,49 @@ notes for the exact accounting used.
 | 5   | Hitting a moving target — adversarial-set verifier    | O(n²)                                                      | O(n)                                   |
 | 6   | Best time to be alive — sweep line                    | O(n log n)                                                 | O(n)                                   |
 | 7   | Matrix chain multiplication — interval DP             | O(n³)                                                      | O(n²)                                  |
+
+**DAA_Lab_08**
+
+| #   | Program                                            | Time                    | Space              |
+| --- | -------------------------------------------------- | ----------------------- | ------------------ |
+| 1   | Minimum coin change                                | O(n·V)                  | O(V)               |
+| 2   | Coin change — number of ways                       | O(n·V)                  | O(V)               |
+| 3   | Longest common subsequence                         | O(m·n)                  | O(m·n)             |
+| 4   | LIS — DP                                           | O(n²)                   | O(n)               |
+| 4   | LIS — tails array + binary search                  | O(n log n)              | O(n)               |
+| 5   | Maximum sum increasing subsequence                 | O(n²)                   | O(n)               |
+| 6   | Edit distance (with traceback)                     | O(m·n)                  | O(m·n)             |
+| 7   | Rod cutting                                        | O(n²)                   | O(n)               |
+| 8   | Optimal binary search tree                         | O(n³)                   | O(n²)              |
+| 9   | Collatz — single trajectory                        | O(L) for stopping time L | O(L) path array   |
+| 9   | Collatz — range `[a, b]`                           | O((b−a+1)·avg L)        | O(1)               |
+
+**DAA_Lab_09**
+
+| #   | Program                                                  | Time                                        | Space                |
+| --- | -------------------------------------------------------- | ------------------------------------------- | -------------------- |
+| 1   | Fractional knapsack with decay (sort by λ + DP)          | O(n log n + n·W·w_max), pseudo-polynomial   | O(n·W)               |
+| 2   | Huffman coding, canonical codebook                       | O(n log n)                                  | O(n)                 |
+| 3   | Minimum refuelling stops (lazy max-heap)                 | O(n log n)                                  | O(n)                 |
+| 4   | Connect sticks (min-heap merging)                        | O(n log n)                                  | O(n)                 |
+| 5   | Candy distribution — two-pass / slope scan               | O(n) / O(n)                                 | O(n) / O(1) extra    |
+| 6   | Reorganise string K apart (heap + cooldown queue)        | O(n log σ), ≈ O(n) for a fixed alphabet     | O(σ + K)             |
+| 7   | Minimise deviation (max-heap halving)                    | O(n log n log M)                            | O(n)                 |
+| 8   | Meeting rooms (sorted starts/ends sweep)                 | O(n log n)                                  | O(n)                 |
+| 9   | Hu–Tucker via Garsia–Wachs — this simulation             | O(n²)                                       | O(n)                 |
+| 9   | Hu–Tucker — with a balanced search structure             | O(n log n)                                  | O(n)                 |
+| 10  | Greedy superstring — max-overlap merging                 | O(n³·L) for max length L                    | O(n·L)               |
+| 10  | Shortest superstring — exact brute force (validator)     | O(n!·n)                                     | O(n)                 |
+
+**DAA_Lab_10**
+
+| #   | Program                                                | Time                                     | Space      |
+| --- | ------------------------------------------------------ | ---------------------------------------- | ---------- |
+| 1   | Online bipartiteness (DSU with parity bit)             | O(V + E·α(V))                            | O(V)       |
+| 2   | Dynamic islands on an R×C grid, k operations           | O(k·α(R·C))                              | O(R·C)     |
+| 3   | Max-weight component, size ≤ K (DSU + lazy-deletion heap) | O((V+E)·α(V) + V log V)               | O(V)       |
+| 4   | Reverse time-step DSU                                  | O((V+E)·α(V))                            | O(V + E)   |
+| 5   | Lexicographically smallest permutation                 | O(n + m·α(n))                            | O(n)       |
 
 ---
 
@@ -933,6 +1284,53 @@ notes for the exact accounting used.
       reconstruction via backtracking (Q7)
 - [x] Validating every result against a brute-force check, an
       independent DP cross-check, or a known textbook/classical value
+
+**Dynamic Programming (Lab 08)**
+
+- [x] Optimal substructure and overlapping subproblems as the test for
+      when DP applies
+- [x] One-dimensional DP tables — coin change (min coins vs number of
+      ways) (Q1, Q2)
+- [x] Why the loop order decides combinations vs permutations (Q2)
+- [x] Two-sequence DP — LCS and edit distance, with traceback to recover
+      the object and not just its size (Q3, Q6)
+- [x] LIS in `O(n²)` and in `O(n log n)` via a tails array and binary
+      search; strict vs non-strict increase (Q4)
+- [x] Reconstruction through a `prev[]` / first-choice array (Q5, Q7)
+- [x] Interval DP over key probabilities — optimal BST (Q8)
+- [x] Overflow-guarded integer iteration and dynamic arrays in C (Q9)
+- [x] Validating a DP against an exponential brute force
+
+**Greedy Algorithms (Lab 09)**
+
+- [x] The exchange argument as the standard greedy correctness proof
+- [x] A plausible greedy that is wrong — and how to repair it with an
+      exchange-argument ordering plus a DP (Q1)
+- [x] Heap-based greedies: Huffman, connect sticks, refuelling, minimise
+      deviation, reorganise string (Q2, Q3, Q4, Q6, Q7)
+- [x] Canonical Huffman codes and the Kraft inequality (Q2)
+- [x] Retroactive ("lazy") decisions with a max-heap (Q3)
+- [x] Two-pass slope scans for neighbour constraints (Q5)
+- [x] Sort-then-sweep for interval colouring (Q8)
+- [x] Optimal alphabetic trees — Hu–Tucker / Garsia–Wachs (Q9)
+- [x] Approximation ratios of a greedy heuristic for an NP-hard problem
+      (Q10)
+
+**Graphs and Union-Find (Lab 10)**
+
+- [x] Disjoint-set union with union by size and path compression/halving,
+      `O(α(n))` amortised per operation
+- [x] Augmenting DSU with extra per-root state — parity (Q1), size and sum
+      (Q3, Q4)
+- [x] Online (streaming) graph algorithms versus offline recomputation
+      (Q1, Q2)
+- [x] Coordinate flattening for grid graphs (Q2)
+- [x] Lazy deletion in a heap when stored entries can become stale (Q3)
+- [x] Reversing time to turn deletions, which DSU cannot do, into
+      insertions, which it can (Q4)
+- [x] Connected components as equivalence classes of reachable
+      permutations; avoiding comparison sorting when the input is a
+      permutation (Q5)
 
 ---
 
@@ -1153,6 +1551,104 @@ gcc -O2 -Wall -o Q7 Q7_matrix_chain_multiplication.c && ./Q7 30 35 15 5 10 20 25
 # p[0..n] dimensions -> minimum scalar multiplications + optimal parenthesization
 ```
 
+### DAA_Lab_08
+
+Files sit directly inside `DAA_Lab_08/` (no per-question subfolder). Each
+program's `main()` prints its answers next to the expected values and
+runs its own randomized brute-force comparison — no input, CSV, or plot
+step is needed:
+
+```bash
+cd DAA_Lab_08
+gcc -O2 -Wall -o Q1 Q1_min_coin_change.c && ./Q1
+gcc -O2 -Wall -o Q2 Q2_coin_change_ways.c && ./Q2
+gcc -O2 -Wall -o Q3 Q3_lcs.c && ./Q3
+gcc -O2 -Wall -o Q4 Q4_lis.c && ./Q4
+gcc -O2 -Wall -o Q5 Q5_msis.c && ./Q5
+gcc -O2 -Wall -o Q6 Q6_edit_distance.c && ./Q6
+gcc -O2 -Wall -o Q7 Q7_rod_cutting.c && ./Q7
+gcc -O2 -Wall -o Q8 Q8_obst.c && ./Q8
+
+gcc -O2 -Wall -o Q9 Q9_collatz.c && ./Q9
+# no args -> built-in demo (n=27, and the ranges [1,10] and [1,100000])
+# ./Q9 27         -> trajectory, step count and peak for one start value
+# ./Q9 27 1 1000  -> the same, plus a range analysis over [1, 1000]
+```
+
+### DAA_Lab_09
+
+Each program runs a built-in demo plus a randomized validation against
+an exhaustive search or independent DP when started with no argument,
+and reads its own input when started with `stdin`. Q1 and Q2 need `-lm`;
+the rest don't touch `math.h`:
+
+```bash
+cd DAA_Lab_09/Q1_Fractional_Knapsack_Decay
+gcc -O2 -Wall -o Q1 Q1_knapsack_decay.c -lm && ./Q1
+# ./Q1 stdin -> input: "n W", then n lines "v w lambda"
+
+cd ../Q2_Huffman_Coding
+gcc -O2 -Wall -o Q2 Q2_huffman_canonical.c -lm && ./Q2
+# ./Q2 stdin -> input: n, then n lines "symbol freq"
+
+cd ../Q3_Minimum_Refuelling_Stops
+gcc -O2 -Wall -o Q3 Q3_min_refuel_stops.c && ./Q3
+# ./Q3 stdin -> input: "D F n", then n lines "d f"
+
+cd ../Q4_Connect_Sticks
+gcc -O2 -Wall -o Q4 Q4_connect_sticks.c && ./Q4
+# ./Q4 stdin -> input: n, then n stick lengths
+
+cd ../Q5_Candy_Distribution
+gcc -O2 -Wall -o Q5 Q5_candy.c && ./Q5
+# ./Q5 stdin -> input: n, then n ratings
+
+cd ../Q6_Reorganise_String_K_Apart
+gcc -O2 -Wall -o Q6 Q6_reorganise_k.c && ./Q6
+# ./Q6 stdin -> input: "S K"
+
+cd ../Q7_Minimise_Deviation
+gcc -O2 -Wall -o Q7 Q7_min_deviation.c && ./Q7
+# ./Q7 stdin -> input: n, then n positive integers
+
+cd ../Q8_Meeting_Rooms
+gcc -O2 -Wall -o Q8 Q8_meeting_rooms.c && ./Q8
+# ./Q8 stdin -> input: n, then n lines "s e"
+
+cd ../Q9_Hu_Tucker
+gcc -O2 -Wall -o Q9 Q9_hu_tucker.c && ./Q9
+# ./Q9 stdin -> input: n, then n weights (leaf order is the input order)
+
+cd ../Q10_Greedy_Superstring
+gcc -O2 -Wall -o Q10 Q10_greedy_superstring.c && ./Q10
+# ./Q10 stdin -> input: n, then n strings (n <= 12)
+```
+
+### DAA_Lab_10
+
+Files sit directly inside `DAA_Lab_10/`. With no argument, each program
+runs its built-in tests plus a randomized brute-force comparison and
+prints one `ALL PASS` line; with `-i` it reads a problem instance from
+standard input:
+
+```bash
+cd DAA_Lab_10
+gcc -O2 -Wall -o Q1 Q1_online_bipartiteness.c && ./Q1
+# ./Q1 -i < in -> input: "V E", then E lines "u v" (1-indexed); prints accept/reject per edge
+
+gcc -O2 -Wall -o Q2 Q2_dynamic_islands.c && ./Q2
+# ./Q2 -i < in -> input: "R C K", then K lines "r c" (0-indexed); prints the island count after each op
+
+gcc -O2 -Wall -o Q3 Q3_max_weight_component.c && ./Q3
+# ./Q3 -i < in -> input: "V K", the V vertex weights, E, then E lines "u v wt" (1-indexed)
+
+gcc -O2 -Wall -o Q4 Q4_reverse_dsu.c && ./Q4
+# ./Q4 -i < in -> input: "V E", V vertex values, E lines "u v", then the V-number deletion order P (1-indexed)
+
+gcc -O2 -Wall -o Q5 Q5_lex_smallest_permutation.c && ./Q5
+# ./Q5 -i < in -> input: n, the permutation A, m, then m lines "u v" (1-indexed positions)
+```
+
 ---
 
 ## Repository Conventions
@@ -1177,6 +1673,16 @@ gcc -O2 -Wall -o Q7 Q7_matrix_chain_multiplication.c && ./Q7 30 35 15 5 10 20 25
   report (`DAA_Lab07_Report.docx`) covering the algorithm derivation,
   complexity analysis, full code, and a sample run for all seven
   questions in one document.
+- **Exceptions — `DAA_Lab_08` and `DAA_Lab_10`:** like `DAA_Lab_06`, the
+  sources sit directly in the lab folder rather than in per-question
+  subfolders, but unlike Lab 06 they keep the capital-`Q`
+  `Q<number>_<short_description>.c` names. Neither lab produces CSV/PNG
+  artifacts: each program validates itself in-console against a brute
+  force.
+- **Exception — `DAA_Lab_09`:** back to per-question `Q<number>_Title/`
+  subfolders and `Q<number>_...` filenames (ten of them, `Q1`–`Q10`), and
+  again no CSV/PNG artifacts — every program carries its own randomized
+  validation against an exhaustive search or an independent DP.
 
 ---
 
